@@ -3,12 +3,12 @@
 #include <assert.h>  
 
 #ifdef _DEBUG  
-#pragma comment(lib, "libcurld")  
+#pragma comment(lib, "lib/libcurld")  
 #else  
-#pragma comment(lib, "libcurl")  
+#pragma comment(lib, "lib/libcurl")  
 #endif  
-#pragma comment(lib, "libeay32")  
-#pragma comment(lib, "ssleay32")  
+#pragma comment(lib, "lib/libeay32")  
+#pragma comment(lib, "lib/ssleay32")  
 #pragma comment(lib, "ws2_32")  
 #pragma comment(lib, "Iphlpapi")  
 #pragma comment(lib, "Wldap32")  
