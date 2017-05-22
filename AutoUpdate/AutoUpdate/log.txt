@@ -1,0 +1,3 @@
+2017-05-22 15:36:06|update-24216|INFO|ASF|InitASF() ASF V2.2.3.2
+2017-05-22 15:36:06|update-24216|ERROR|ASF|InitGlobalConfigAndLanguage() 不能加载全局配置，请确保 config\ASF.json 存在并且是有效的 ！如果您仍然有疑问请遵循wiki的设置指南。
+2017-05-22 15:36:11|update-24216|ERROR|ASF|Exit() 正在以非零的错误代码退出 ！
