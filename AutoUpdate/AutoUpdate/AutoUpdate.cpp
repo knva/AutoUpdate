@@ -60,7 +60,7 @@ void Download(const char *pUrl,const char* filename)
 	libcurl.SetResumeFrom(0);
 	libcurl.SetCallback(&cb, NULL);
 	char updatedir[128] = "";
-	sprintf(updatedir, "update//%s", filename);
+	sprintf_s(updatedir,128, "update//%s", filename);
 	libcurl.DownloadToFile(pUrl, updatedir);
 }
 
@@ -84,7 +84,7 @@ string GetUpdate(string name,int ver)
 	char url[512] = "";
 	const char *mname = name.data();
 	
-	sprintf(url, "http://127.0.0.1/autoupdate.php?name=%s&version=%02d&publicKey=7c4622c43a83a7573503bc9ce9e3cede", mname, ver);
+	sprintf_s(url,512, "http://127.0.0.1/autoupdate.php?name=%s&version=%02d&publicKey=7c4622c43a83a7573503bc9ce9e3cede", mname, ver);
 
 	CLibcurl libcurl;
 	libcurl.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
@@ -98,9 +98,13 @@ void MakeBat(const char* app)
 	
 	char tmp[256];
 	FILE *fbat;
+	errno_t err;
 	printf("准备更新，请不要操作!\n");
 	snprintf(tmp, sizeof(tmp), "%s\\update.bat", "update");
-	fbat = fopen(tmp, "w+");
+	if ((err = fopen_s(&fbat, tmp, "w+")) != 0){
+		printf("file not open,update cancel.");
+	}
+
 	fprintf(fbat, "@echo off\n");
     fprintf(fbat, "taskkill /F /IM %s\n", app);
 	fprintf(fbat, "ping -n 2 127.1>nul\n");
