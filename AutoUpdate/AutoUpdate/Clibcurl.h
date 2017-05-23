@@ -1,10 +1,10 @@
 /*****************************************
 *封装Libcurl下载库
 *author：knva
-*date：2017年5月24日
+*date：2017年5月22日
 */
 #pragma once  
-#include "include/curl/curl.h"
+#include <curl/curl.h>  
 #include <string>  
 using std::string;
 

@@ -5,6 +5,7 @@
 #include "Clibcurl.h"  
 #include "configjson.h"
 #include <direct.h>
+#include "MD5.h"
 using namespace std;
 class CLibcurlCallbackEx
 	: public CLibcurlCallback
@@ -21,11 +22,17 @@ public:
 	}
 
 };
-
+///
+///
+///TODO:下载文件  参数1 :下载地址   参数2 :保存文件名
 void Download(const char *pUrl, const char* filename);
+///TODO:提交POST
 void PostTest();
+///TODO:使用GET方式获取信息 参数1:程序名  参数2:版本号
 string GetUpdate(string name, int ver);
+///TODO:创建批处理文件 参数1:程序名
 void MakeBat(const char* app);
+///TODO 主函数
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//DownloadTest();  
@@ -60,7 +67,7 @@ void Download(const char *pUrl,const char* filename)
 	libcurl.SetResumeFrom(0);
 	libcurl.SetCallback(&cb, NULL);
 	char updatedir[128] = "";
-	sprintf_s(updatedir,128, "update//%s", filename);
+	sprintf_s(updatedir, 128,"update//%s", filename);
 	libcurl.DownloadToFile(pUrl, updatedir);
 }
 
@@ -83,14 +90,19 @@ string GetUpdate(string name,int ver)
 {
 	char url[512] = "";
 	const char *mname = name.data();
-	
-	sprintf_s(url,512, "http://127.0.0.1/autoupdate.php?name=%s&version=%02d&publicKey=7c4622c43a83a7573503bc9ce9e3cede", mname, ver);
-
+	string mmd5 = MD5("595902716@qq.com").toString();
+	const char * mmkey = mmd5.c_str();
+	sprintf_s(url,512, "http://127.0.0.1/autoupdate.php?name=%s&version=%02d&publicKey=%s", mname, ver,mmkey);
+	//printf(url);
 	CLibcurl libcurl;
 	libcurl.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
 	libcurl.Get(url);
 	const char* pHtml = libcurl.GetResponsPtr();
 	const char* pError = libcurl.GetError();
+	if (strlen(pHtml)==0)
+	{
+		return "{\"code\":\"0\"}";
+	}
 	return pHtml;
 }  
 void MakeBat(const char* app)
@@ -98,21 +110,29 @@ void MakeBat(const char* app)
 	
 	char tmp[256];
 	FILE *fbat;
-	errno_t err;
 	printf("准备更新，请不要操作!\n");
 	snprintf(tmp, sizeof(tmp), "%s\\update.bat", "update");
-	if ((err = fopen_s(&fbat, tmp, "w+")) != 0){
-		printf("file not open,update cancel.");
+	errno_t err;
+	if (err = fopen_s(&fbat, tmp, "w+")!=0)
+	{
+		printf("操作失败.");
+		return;
 	}
-
 	fprintf(fbat, "@echo off\n");
     fprintf(fbat, "taskkill /F /IM %s\n", app);
 	fprintf(fbat, "ping -n 2 127.1>nul\n");
 	fprintf(fbat, "copy /Y .\\update\\* .\\\n");
 	fprintf(fbat, "del .\\update.bat\n");
 	//fprintf(fbat, "%s",app);
-	fclose(fbat);
-	
+	if(fbat)
+	{
+	 err = fclose(fbat);
+	 if (err != 0)
+	 {
+		 printf("操作失败.");
+		 return;
+	 }
+	}
 
 	snprintf(tmp, sizeof(tmp), "%s\\update.bat", "update");
 	WinExec(tmp, SW_HIDE); //隐藏窗口运行a.bat
