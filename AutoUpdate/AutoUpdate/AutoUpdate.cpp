@@ -4,9 +4,20 @@
 #include "stdafx.h"
 #include "Clibcurl.h"  
 #include "configjson.h"
-#include <direct.h>
 #include "MD5.h"
 using namespace std;
+
+
+#ifdef WIN32 
+#define MKDIR _mkdir
+#elif   (defined   (UNIX)   &&   defined(_LARGEFILE64_SOURCE)) 
+
+
+#endif 
+#define ERR_RESULT "{\"result\":\"failed\"}"
+
+
+
 class CLibcurlCallbackEx
 	: public CLibcurlCallback
 {
@@ -25,13 +36,16 @@ public:
 ///
 ///
 ///TODO:下载文件  参数1 :下载地址   参数2 :保存文件名
-void Download(const char *pUrl, const char* filename);
+void Download(const char *pUrl, const char* filename,int ver);
 ///TODO:提交POST
 void PostTest();
 ///TODO:使用GET方式获取信息 参数1:程序名  参数2:版本号
 string GetUpdate(string name, int ver);
-///TODO:创建批处理文件 参数1:程序名
-void MakeBat(const char* app);
+///TODO:创建批处理文件 参数1:程序名  参数2:版本号
+void MakeBat(const char* app,int ver);
+///支持多文件更新 参数1:下载地址  参数2:下载文件名 参数3:下载版本号
+void MoreDownload(vector<string>, vector<string>,int ver);
+///
 ///TODO 主函数
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -39,26 +53,39 @@ int _tmain(int argc, _TCHAR* argv[])
 	//PostTest();  
 	string name="";
 	int ver=0;
+	int nver = 0;
+
+	vector<string> downloadurl;
+	vector<string> filename;
 	configjson *rj = new configjson();
 	rj->readjson(name, ver);
-	//printf(name.c_str());
-	//printf("%d",ver);
-	string downloadUrl = "";
-	int nver = 0;
+
 	string json = GetUpdate(name, ver);
-	if (json == "{\"code\":\"0\"}")
+	if (json == ERR_RESULT)
 		return 0;
-	rj->readjson(json, downloadUrl, nver);
+	rj->readjson(json, downloadurl, filename,nver);
 
 	printf("发现新版本，版本号:%d\n", nver);
-	_mkdir("update");
-	Download(downloadUrl.c_str(), name.c_str());
-	MakeBat(name.c_str());
-	//system("pause");
+	
+
+	MoreDownload(downloadurl, filename,nver);
+
+	MakeBat(name.c_str(),nver);
+	system("pause");
 	return 0;
 }
+void MoreDownload(vector<string>downloadurl, vector<string>filename,int ver)
+{
+	char updatedir[128] = "";
+	sprintf_s(updatedir, 128, "update//%d//", ver );
+	MKDIR(updatedir);
+	for (unsigned int i = 0; i < downloadurl.size(); i++)
+	{
+		Download(downloadurl.at(i).c_str(), filename.at(i).c_str(),ver);
+	}
+}
 
-void Download(const char *pUrl,const char* filename)
+void Download(const char *pUrl,const char* filename,int ver)
 {
 	CLibcurl libcurl;
 	CLibcurlCallbackEx cb;
@@ -67,7 +94,8 @@ void Download(const char *pUrl,const char* filename)
 	libcurl.SetResumeFrom(0);
 	libcurl.SetCallback(&cb, NULL);
 	char updatedir[128] = "";
-	sprintf_s(updatedir, 128,"update//%s", filename);
+	sprintf_s(updatedir, 128,"update//%d//%s",ver, filename);
+	
 	libcurl.DownloadToFile(pUrl, updatedir);
 }
 
@@ -101,11 +129,11 @@ string GetUpdate(string name,int ver)
 	const char* pError = libcurl.GetError();
 	if (strlen(pHtml)==0)
 	{
-		return "{\"code\":\"0\"}";
+		return ERR_RESULT;
 	}
 	return pHtml;
 }  
-void MakeBat(const char* app)
+void MakeBat(const char* app,int ver)
 {
 	
 	char tmp[256];
@@ -121,8 +149,8 @@ void MakeBat(const char* app)
 	fprintf(fbat, "@echo off\n");
     fprintf(fbat, "taskkill /F /IM %s\n", app);
 	fprintf(fbat, "ping -n 2 127.1>nul\n");
-	fprintf(fbat, "copy /Y .\\update\\* .\\\n");
-	fprintf(fbat, "del .\\update.bat\n");
+	fprintf(fbat, "copy /Y .\\update\\%d\\* .\\\n",ver);
+	
 	//fprintf(fbat, "%s",app);
 	if(fbat)
 	{

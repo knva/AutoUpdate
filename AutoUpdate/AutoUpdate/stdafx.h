@@ -8,7 +8,9 @@
 #include "targetver.h"
 #include "stdio.h"
 #include <tchar.h>
-
+#include <direct.h>
+#include <vector>
+#include <string>
 
 
 // TODO: 在此处引用程序需要的其他头文件

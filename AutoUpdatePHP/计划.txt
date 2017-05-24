@@ -1,8 +1,22 @@
 {
-    result:"ok",
-    hash:"123123123123",
-    newVersion:"1.1.1",
-    downloadUrl:"http://aize.org/index.html"
+  "result": {
+    "status": "ok",
+    "ver": "2",
+    "list": {
+      "url": [
+        "http://aize.org",
+        "http://aize.org",
+        "http://aize.org",
+        "http://aize.org"
+      ],
+      "file": [
+        "a.zip",
+        "a.zip",
+        "a.zip",
+        "a.zip"
+      ]
+    }
+  }
 }
 
 
@@ -16,3 +30,16 @@ php端解析hash判断版本,返回json
 问题3:hash传递到服务器如何判断是什么软件
 问题4:传递的hash 的系统信息如何解析. 也就是给php传递的json 数据.需要包含什么
 问题5:mysql 数据表设计
+
+
+数据库 update:
+
+表:serverupdate
+id  downloadUrl                                             time                version     exename
+1	http://127.0.0.1/update.exe,http://127.0.0.1/update.dll	2017-05-22 00:00:00	30	        update.exe
+
+
+
+表:updatelog
+id   time               json    ver
+27	2017-05-22 10:55:48	{aa:aa}	2.23

@@ -1,7 +1,7 @@
 #include "StdAfx.h"  
 #include "Clibcurl.h"  
 #include <assert.h>  
-
+#ifdef WIN32 
 #ifdef _DEBUG  
 #pragma comment(lib, "libcurld")  
 #else  
@@ -12,7 +12,10 @@
 #pragma comment(lib, "ws2_32")  
 #pragma comment(lib, "Iphlpapi")  
 #pragma comment(lib, "Wldap32")  
+#elif   (defined   (UNIX)   &&   defined(_LARGEFILE64_SOURCE)) 
 
+
+#endif 
 
 CLibcurl::CLibcurl(void)
 	: m_pCurl(NULL)
