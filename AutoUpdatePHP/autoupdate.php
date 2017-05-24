@@ -108,7 +108,7 @@ if (isGet()) {
 		$mname = $_GET["name"];
 		$version = $_GET["version"];
 		$publicKey = $_GET["publicKey"];
-		if ($publicKey == md5('595902716' . '@qq.com')) {
+		if ($publicKey == md5('595902716' . '@qq.com'.floor(time()/100))) {
 			$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
 			$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -126,7 +126,7 @@ if (isGet()) {
 		$mname = $_POST["name"];
 		$version = $_POST["version"];
 		$publicKey = $_POST["publicKey"];
-		if ($publicKey == md5('595902716' . '@qq.com')) {
+		if ($publicKey == md5('595902716' . '@qq.com'.floor(time()/100))) {
 			$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
 			$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

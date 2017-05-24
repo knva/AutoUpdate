@@ -5,6 +5,7 @@
 #include "Clibcurl.h"  
 #include "configjson.h"
 #include "MD5.h"
+#include <time.h>
 using namespace std;
 
 
@@ -110,7 +111,10 @@ string PostTest(string name, int ver)
 	const char *mname = name.data();
 	char strver[10] = "";
 	sprintf_s(strver, 10, "%d", ver);
-	string mmd5 = MD5("595902716@qq.com").toString();
+	char md5str[128] = "";
+	time_t tt = time(NULL);//这句返回的只是一个时间戳
+	sprintf_s(md5str, 128, "595902716@qq.com%lld",tt/100);
+	string mmd5 = MD5(md5str).toString();
 	const char * mmkey = mmd5.c_str();
 	sprintf_s(url, 512, "name=%s&version=%02d&publicKey=%s", mname, ver, mmkey);
 	CLibcurl libcurl;
