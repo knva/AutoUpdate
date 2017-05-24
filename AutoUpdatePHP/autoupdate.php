@@ -1,5 +1,5 @@
 <?php
-//get & send 
+//get & send
 //Parameter1:get name
 //Parameter2:get version
 //Parameter3:pdo handle
@@ -35,7 +35,6 @@ function flushmJson($name, $ver, $dbh) {
 		return False;
 	}
 }
-
 //Add a log to the database
 //Parameter1:pdo handle
 //Parameter2:update soft name
@@ -65,9 +64,10 @@ function updateLog($dbh, $result, $userinfo) {
 	}
 }
 //create user id
-function create_unique(){
-    $data = $_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR'].time().rand();
-    return sha1($data);//return md5(time().$data);   //return $data;   
+function create_unique() {
+	$data = $_SERVER['HTTP_USER_AGENT'] . $_SERVER['REMOTE_ADDR'] . time() . rand();
+	return sha1($data); //return md5(time().$data);   //return $data;
+	
 }
 //get ip
 function GetIP() {
@@ -78,22 +78,66 @@ function GetIP() {
 	else $ip = "unknown";
 	return ($ip);
 }
-//main
-if (isset($_GET["name"]) && isset($_GET["version"]) && isset($_GET["publicKey"])) {
-	$mname = $_GET["name"];
-	$version = $_GET["version"];
-	$publicKey = $_GET["publicKey"];
-	if ($publicKey == md5('595902716' . '@qq.com')) {
-		$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
-        $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		flushmJson($mname, $version, $dbh);
-		$dbh = null; //(free)
-		
+/**
+ * 是否是AJAx提交的
+ * @return bool
+ */
+function isAjax() {
+	if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+		return true;
 	} else {
-		echo 'Are you kidding me?';
+		return false;
 	}
-} else {
-	echo 'You need some salt!';
+}
+/**
+ * 是否是GET提交的
+ */
+function isGet() {
+	return $_SERVER['REQUEST_METHOD'] == 'GET' ? true : false;
+}
+/**
+ * 是否是POST提交
+ * @return int
+ */
+function isPost() {
+	return $_SERVER['REQUEST_METHOD'] == 'POST'  ? 1 : 0;
+}
+//main
+if (isGet()) {
+	if (isset($_GET["name"]) && isset($_GET["version"]) && isset($_GET["publicKey"])) {
+		$mname = $_GET["name"];
+		$version = $_GET["version"];
+		$publicKey = $_GET["publicKey"];
+		if ($publicKey == md5('595902716' . '@qq.com')) {
+			$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
+			$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			flushmJson($mname, $version, $dbh);
+			$dbh = null; //(free)
+			
+		} else {
+			echo 'Are you kidding me?';
+		}
+	} else {
+		echo 'You need some salt!';
+	}
+} elseif (isPost()) {
+	if (isset($_POST["name"]) && isset($_POST["version"]) && isset($_POST["publicKey"])) {
+		$mname = $_POST["name"];
+		$version = $_POST["version"];
+		$publicKey = $_POST["publicKey"];
+		if ($publicKey == md5('595902716' . '@qq.com')) {
+			$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
+			$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			flushmJson($mname, $version, $dbh);
+			$dbh = null; //(free)
+			
+		} else {
+			echo 'Are you kidding me?';
+		}
+	} else {
+		echo 'You need some salt!';
+	}
 }
 ?>

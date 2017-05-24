@@ -15,9 +15,10 @@ using namespace std;
 
 #endif 
 #define ERR_RESULT "{\"result\":\"failed\"}"
-
-
-
+//GETMODE 
+//0 post
+//1 get
+#define GETMODE 0
 class CLibcurlCallbackEx
 	: public CLibcurlCallback
 {
@@ -31,19 +32,18 @@ public:
 		//printf("下载进度：%0.2lf%%\n", bPercent);
 		printf(".");
 	}
-
 };
 ///
 ///
-///TODO:下载文件  参数1 :下载地址   参数2 :保存文件名
+///LC:下载文件  参数1 :下载地址   参数2 :保存文件名
 void Download(const char *pUrl, const char* filename,int ver);
-///TODO:提交POST
-void PostTest();
-///TODO:使用GET方式获取信息 参数1:程序名  参数2:版本号
+///LC:提交POST 参数1:程序名  参数2:版本号
+string PostTest(string name, int ver);
+///LC:使用GET方式获取信息 参数1:程序名  参数2:版本号
 string GetUpdate(string name, int ver);
-///TODO:创建批处理文件 参数1:程序名  参数2:版本号
+///LC:创建批处理文件 参数1:程序名  参数2:版本号
 void MakeBat(const char* app,int ver);
-///支持多文件更新 参数1:下载地址  参数2:下载文件名 参数3:下载版本号
+///LC:支持多文件更新 参数1:下载地址  参数2:下载文件名 参数3:下载版本号
 void MoreDownload(vector<string>, vector<string>,int ver);
 ///
 ///TODO 主函数
@@ -54,19 +54,24 @@ int _tmain(int argc, _TCHAR* argv[])
 	string name="";
 	int ver=0;
 	int nver = 0;
+	string json = "";
 
 	vector<string> downloadurl;
 	vector<string> filename;
 	configjson *rj = new configjson();
 	rj->readjson(name, ver);
-
-	string json = GetUpdate(name, ver);
-	if (json == ERR_RESULT)
+	if(GETMODE){
+		json = GetUpdate(name, ver);
+	}
+	else
+	{
+		json = PostTest(name, ver);
+	}
+	if (json == ERR_RESULT||json =="")
 		return 0;
 	rj->readjson(json, downloadurl, filename,nver);
 
 	printf("发现新版本，版本号:%d\n", nver);
-	
 
 	MoreDownload(downloadurl, filename,nver);
 
@@ -99,19 +104,32 @@ void Download(const char *pUrl,const char* filename,int ver)
 	libcurl.DownloadToFile(pUrl, updatedir);
 }
 
-void PostTest()
+string PostTest(string name, int ver)
 {
+	char url[512] = "";
+	const char *mname = name.data();
+	char strver[10] = "";
+	sprintf_s(strver, 10, "%d", ver);
+	string mmd5 = MD5("595902716@qq.com").toString();
+	const char * mmkey = mmd5.c_str();
+	sprintf_s(url, 512, "name=%s&version=%02d&publicKey=%s", mname, ver, mmkey);
 	CLibcurl libcurl;
 	libcurl.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
 	libcurl.SetPort(80);
 	libcurl.SetConnectTimeout(2);
-	libcurl.AddHeader("name", "Jelin");
-	libcurl.AddHeader("sex", "man");
+	libcurl.AddHeader("name", mname);
+	libcurl.AddHeader("version", strver);
+	libcurl.AddHeader("publicKey", mmkey);
 	libcurl.SetCookieFile("c:\\cookie");
-	char* pData = "maintype=10001&subtype=100&appver=2.5.19.3753&sysver=Microsoft Windows 7&applist=100:15,200:2&sign=2553d888bc922275eca2fc539a5f0c1b";
-	libcurl.Post("http://interface.***********.com/v2/stat/index/jingpin", pData);
-	string strRet = libcurl.GetRespons();
-
+	//char* pData = "maintype=10001&subtype=100&appver=2.5.19.3753&sysver=Microsoft Windows 7&applist=100:15,200:2&sign=2553d888bc922275eca2fc539a5f0c1b";
+	libcurl.Post("http://127.0.0.1/autoupdate.php", url);
+	const char* pHtml = libcurl.GetResponsPtr();
+	const char* pError = libcurl.GetError();
+	if (strlen(pHtml) == 0)
+	{
+		return ERR_RESULT;
+	}
+	return pHtml;
 }
 
 string GetUpdate(string name,int ver)
