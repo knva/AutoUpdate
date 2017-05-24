@@ -49,10 +49,11 @@
 |1  |  http://127.0.0.1/update.exe,http://127.0.0.1/update.dll |2017-05-22 00:00:00	  |30	         | update.exe|
 
 
-
 表:updatelog
-id   time               json    ver
-27	2017-05-22 10:55:48	{aa:aa}	2.23
+
+|id |time               |json    |ver |
+|-- |:-----------------:|:------:|---:|
+|27	|2017-05-22 10:55:48|	{aa:aa}|2.23|
 
 问题6:POST GET判断                                                              over
 ```
