@@ -18,7 +18,7 @@ function flushmJson($name, $ver, $dbh) {
 	$userinfo = create_unique();
 	if (!addLog($dbh, $name, $ver, $userinfo)) {
 		$str = array('result' => 'failed');
-		echo json_encode($str);
+		//echo json_encode($str);
 		return False;
 	}
 	$exename = $name;
