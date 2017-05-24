@@ -41,17 +41,17 @@
 问题5:mysql 数据表设计                                                          over
 
 数据库 update:
-```
-表:serverupdate
-id  downloadUrl                                             time                version     exename
-1	http://127.0.0.1/update.exe,http://127.0.0.1/update.dll	2017-05-22 00:00:00	30	        update.exe
-```
 
-```
+表:serverupdate
+|id |downloadUrl                                               |time                  |version     |exename    |
+|-- |:--------------------------------------------------------:|:--------------------:|:----------:|----------:|
+|1  |  http://127.0.0.1/update.exe,http://127.0.0.1/update.dll |2017-05-22 00:00:00	  |30	       | update.exe|
+
+
 表:updatelog
 id   time               json    ver
 27	2017-05-22 10:55:48	{aa:aa}	2.23
-```
+
 问题6:POST GET判断                                                              over
 ```
 在php端添加了 post 与get 的判断
