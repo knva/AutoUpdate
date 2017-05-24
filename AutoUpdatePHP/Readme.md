@@ -43,9 +43,11 @@
 数据库 update:
 
 表:serverupdate
+
 |id |downloadUrl                                               |time                  |version     |exename    |
 |-- |:--------------------------------------------------------:|:--------------------:|:----------:|----------:|
-|1  |  http://127.0.0.1/update.exe,http://127.0.0.1/update.dll |2017-05-22 00:00:00	  |30	       | update.exe|
+|1  |  http://127.0.0.1/update.exe,http://127.0.0.1/update.dll |2017-05-22 00:00:00	  |30	         | update.exe|
+
 
 
 表:updatelog
