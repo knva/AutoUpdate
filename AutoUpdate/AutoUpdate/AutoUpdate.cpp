@@ -140,7 +140,10 @@ string GetUpdate(string name,int ver)
 {
 	char url[512] = "";
 	const char *mname = name.data();
-	string mmd5 = MD5("595902716@qq.com").toString();
+	char md5str[128] = "";
+	time_t tt = time(NULL);//这句返回的只是一个时间戳
+	sprintf_s(md5str, 128, "595902716@qq.com%lld", tt / 100);
+	string mmd5 = MD5(md5str).toString();
 	const char * mmkey = mmd5.c_str();
 	sprintf_s(url,512, "http://127.0.0.1/autoupdate.php?name=%s&version=%02d&publicKey=%s", mname, ver,mmkey);
 	//printf(url);

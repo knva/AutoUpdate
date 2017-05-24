@@ -100,44 +100,30 @@ function isGet() {
  * @return int
  */
 function isPost() {
-	return $_SERVER['REQUEST_METHOD'] == 'POST'  ? 1 : 0;
+	return $_SERVER['REQUEST_METHOD'] == 'POST' ? 1 : 0;
 }
 //main
-if (isGet()) {
-	if (isset($_GET["name"]) && isset($_GET["version"]) && isset($_GET["publicKey"])) {
+if ((isset($_GET["name"]) && isset($_GET["version"]) && isset($_GET["publicKey"])) || (isset($_POST["name"]) && isset($_POST["version"]) && isset($_POST["publicKey"]))) {
+	if (isGet()) {
 		$mname = $_GET["name"];
 		$version = $_GET["version"];
 		$publicKey = $_GET["publicKey"];
-		if ($publicKey == md5('595902716' . '@qq.com'.floor(time()/100))) {
-			$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
-			$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			flushmJson($mname, $version, $dbh);
-			$dbh = null; //(free)
-			
-		} else {
-			echo 'Are you kidding me?';
-		}
-	} else {
-		echo 'You need some salt!';
-	}
-} elseif (isPost()) {
-	if (isset($_POST["name"]) && isset($_POST["version"]) && isset($_POST["publicKey"])) {
+	} elseif (isPost()) {
 		$mname = $_POST["name"];
 		$version = $_POST["version"];
 		$publicKey = $_POST["publicKey"];
-		if ($publicKey == md5('595902716' . '@qq.com'.floor(time()/100))) {
-			$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
-			$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			flushmJson($mname, $version, $dbh);
-			$dbh = null; //(free)
-			
-		} else {
-			echo 'Are you kidding me?';
-		}
-	} else {
-		echo 'You need some salt!';
 	}
+	if ($publicKey == md5('595902716' . '@qq.com' . floor(time() / 100)) || $publicKey == "595902716") {
+		$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
+		$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		flushmJson($mname, $version, $dbh);
+		$dbh = null; //(free)
+		
+	} else {
+		echo 'Are you kidding me?';
+	}
+} else {
+	echo 'You need some salt!';
 }
 ?>
