@@ -23,7 +23,7 @@
     <ProjectGuid>{13E00FCE-A891-4CE8-8958-706C00C9B895}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AutoUpdate</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -84,6 +84,7 @@
     <LibraryWPath>
     </LibraryWPath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSdk_71A_LibraryPath_x86);.\lib</LibraryPath>
+    <OutDir>$(SolutionDir)libau\rc\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
