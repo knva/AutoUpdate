@@ -171,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Debug\AutoUpdate.exe" />
+    <None Include="rc\AutoUpdate.exe" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
