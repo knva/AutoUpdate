@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoUpdate", "AutoUpdate\AutoUpdate.vcxproj", "{13E00FCE-A891-4CE8-8958-706C00C9B895}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibAuTest", "LibAuTest\LibAuTest.vcxproj", "{7F17471C-E951-4012-85CD-946016779173}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E4820E7E-31B5-4E97-BB3A-395867F1A6B2} = {E4820E7E-31B5-4E97-BB3A-395867F1A6B2}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibAu", "LibAu\LibAu.vcxproj", "{E4820E7E-31B5-4E97-BB3A-395867F1A6B2}"
 EndProject
