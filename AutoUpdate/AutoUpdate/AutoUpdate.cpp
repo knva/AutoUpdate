@@ -9,10 +9,12 @@
 using namespace std;
 
 
-#ifdef WIN32 
-#define MKDIR _mkdir
-#elif   (defined   (UNIX)   &&   defined(_LARGEFILE64_SOURCE)) 
-
+#ifdef _WIN32 
+#define MKDIR(a) _mkdir((a))
+#define ACCESS _access
+#elif _LINUX
+#define MKDIR(a) mkdir((a),0755)
+#define ACCESS access
 
 #endif 
 #define ERR_RESULT "{\"result\":\"failed\"}"
@@ -38,67 +40,83 @@ public:
 ///
 ///
 ///LC:下载文件  参数1 :下载地址   参数2 :保存文件名
-void Download(const char *pUrl, const char* filename,int ver);
+void Download(const char *pUrl, const char* filename, int ver);
 ///LC:提交POST 参数1:程序名  参数2:版本号
 string PostTest(string name, int ver, string url);
 ///LC:使用GET方式获取信息 参数1:程序名  参数2:版本号
-string GetUpdate(string name, int ver,string url);
+string GetUpdate(string name, int ver, string url);
 ///LC:创建批处理文件 参数1:程序名  参数2:版本号
-void MakeBat(const char* app,int ver);
+void MakeBat(const char* app, int ver);
 ///LC:支持多文件更新 参数1:下载地址  参数2:下载文件名 参数3:下载版本号
-void MoreDownload(vector<string>, vector<string>,int ver);
-///
+void MoreDownload(vector<string>, vector<string>, int ver);
+///UP:存在json时,使用--u命令直接更新
+void checkUpdate();
+///UP:创建目录
+int CreatDir(char *);
 ///TODO 主函数
-int _tmain(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
 	if (argc != 4)
 	{
-		printf("请输入软件名称,软件版本及更新地址,例如:update.exe MyApp.exe 1 update.com");
+		if (argc == 2)
+		{
+			if (strcmp(argv[1], "--u")==0)
+			{
+				checkUpdate();
+				return 0;
+			}
+		}
+		printf("请输入软件名称,软件版本及更新地址,例如:update.exe MyApp.exe 1 update.com\n");
 		printf("运行软件之后,软件会生成AppConfig.json ,其中包含了软件名称及版本号.");
+		
 		return 0;
 	}
-	string name="";
-	int ver=0;
+
+	string name = "";
+	int ver = 0;
 	int nver = 0;
 	string json = "";
 	vector<string> downloadurl;
 	vector<string> filename;
-	configjson *rj = new configjson(string(argv[1]), atoi(argv[2]));
+	string exename = argv[1];
+	
+	string url = argv[3];
+	configjson *rj = new configjson(exename, atoi(argv[2]),url);
 	rj->readjson(name, ver);
 
-	if(GETMODE){
-		json = GetUpdate(name, ver,string(argv[3]));
+	if (GETMODE) {
+		json = GetUpdate(name, ver, url);
 	}
 	else
 	{
-		json = PostTest(name, ver, string(argv[3]));
+		json = PostTest(name, ver, url);
 	}
-	if (json == ERR_RESULT||json =="")
+	if (json == ERR_RESULT || json == "")
 		return 0;
-	rj->readjson(json, downloadurl, filename,nver);
+	rj->readupjson(json, downloadurl, filename, nver);
 
 	printf("发现新版本，版本号:%d\n", nver);
 
-	MoreDownload(downloadurl, filename,nver);
+	MoreDownload(downloadurl, filename, nver);
 
-	MakeBat(name.c_str(),nver);
+	MakeBat(name.c_str(), nver);
 
 	//system("pause");
 
 	return 0;
 }
-void MoreDownload(vector<string>downloadurl, vector<string>filename,int ver)
+void MoreDownload(vector<string>downloadurl, vector<string>filename, int ver)
 {
 	char updatedir[128] = "";
-	sprintf_s(updatedir, 128, "update//%d//", ver );
-	MKDIR(updatedir);
+	sprintf_s(updatedir, 128, "update//%d//", ver);
+	CreatDir(updatedir);
 	for (unsigned int i = 0; i < downloadurl.size(); i++)
 	{
-		Download(downloadurl.at(i).c_str(), filename.at(i).c_str(),ver);
+		Download(downloadurl.at(i).c_str(), filename.at(i).c_str(), ver);
 	}
 }
 
-void Download(const char *pUrl,const char* filename,int ver)
+void Download(const char *pUrl, const char* filename, int ver)
 {
 	CLibcurl libcurl;
 	CLibcurlCallbackEx cb;
@@ -107,8 +125,8 @@ void Download(const char *pUrl,const char* filename,int ver)
 	libcurl.SetResumeFrom(0);
 	libcurl.SetCallback(&cb, NULL);
 	char updatedir[128] = "";
-	sprintf_s(updatedir, 128,"update//%d//%s",ver, filename);
-	
+	sprintf_s(updatedir, 128, "update//%d//%s", ver, filename);
+
 	libcurl.DownloadToFile(pUrl, updatedir);
 }
 
@@ -120,7 +138,7 @@ string PostTest(string name, int ver, string updateurl)
 	sprintf_s(strver, 10, "%d", ver);
 	char md5str[128] = "";
 	time_t tt = time(NULL);//这句返回的只是一个时间戳
-	sprintf_s(md5str, 128, "595902716@qq.com%lld",tt/100);
+	sprintf_s(md5str, 128, "595902716@qq.com%lld", tt / 100);
 	string mmd5 = MD5(md5str).toString();
 	const char * mmkey = mmd5.c_str();
 	sprintf_s(url, 128, "name=%s&version=%02d&publicKey=%s", mname, ver, mmkey);
@@ -145,7 +163,7 @@ string PostTest(string name, int ver, string updateurl)
 	return pHtml;
 }
 
-string GetUpdate(string name,int ver, string updateurl)
+string GetUpdate(string name, int ver, string updateurl)
 {
 	char url[512] = "";
 	const char *mname = name.data();
@@ -154,48 +172,122 @@ string GetUpdate(string name,int ver, string updateurl)
 	sprintf_s(md5str, 128, "595902716@qq.com%lld", tt / 100);
 	string mmd5 = MD5(md5str).toString();
 	const char * mmkey = mmd5.c_str();
-	sprintf_s(url,512, "http://%s/autoupdate.php?name=%s&version=%02d&publicKey=%s",updateurl.c_str(), mname, ver,mmkey);
+	sprintf_s(url, 512, "http://%s/autoupdate.php?name=%s&version=%02d&publicKey=%s", updateurl.c_str(), mname, ver, mmkey);
 	//printf(url);
 	CLibcurl libcurl;
 	libcurl.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
 	libcurl.Get(url);
 	const char* pHtml = libcurl.GetResponsPtr();
 	const char* pError = libcurl.GetError();
-	if (strlen(pHtml)==0)
+	if (strlen(pHtml) == 0)
 	{
 		return ERR_RESULT;
 	}
 	return pHtml;
-}  
-void MakeBat(const char* app,int ver)
+}
+void MakeBat(const char* app, int ver)
 {
-	
+
 	char tmp[256];
 	FILE *fbat;
 	printf("准备更新，请不要操作!\n");
 	snprintf(tmp, sizeof(tmp), "%s\\update.bat", "update");
 	errno_t err;
-	if (err = fopen_s(&fbat, tmp, "w+")!=0)
+	if (err = fopen_s(&fbat, tmp, "w+") != 0)
 	{
 		printf("操作失败.");
 		return;
 	}
 	fprintf(fbat, "@echo off\n");
-    fprintf(fbat, "taskkill /F /IM %s\n", app);
+	fprintf(fbat, "taskkill /F /IM %s\n", app);
 	fprintf(fbat, "ping -n 2 127.1>nul\n");
-	fprintf(fbat, "copy /Y .\\update\\%d\\* .\\\n",ver);
-	
-	//fprintf(fbat, "%s",app);
-	if(fbat)
+	fprintf(fbat, "copy /Y .\\update\\%d\\* .\\\n", ver);
+
+	fprintf(fbat, "start %s",app);
+	if (fbat)
 	{
-	 err = fclose(fbat);
-	 if (err != 0)
-	 {
-		 printf("操作失败.");
-		 return;
-	 }
+		err = fclose(fbat);
+		if (err != 0)
+		{
+			printf("操作失败.");
+			return;
+		}
 	}
 
 	snprintf(tmp, sizeof(tmp), "%s\\update.bat", "update");
 	WinExec(tmp, SW_HIDE); //隐藏窗口运行a.bat
+}
+
+void checkUpdate()
+{
+	string name = "";
+	int ver = 0;
+	int nver = 0;
+	string json = "";
+	string url = "";
+	vector<string> downloadurl;
+	vector<string> filename;
+	configjson *cj = new configjson();
+	if (cj->checkUp(name, nver, url))
+	{
+		if (GETMODE) {
+			json = GetUpdate(name, ver, url);
+		}
+		else
+		{
+			json = PostTest(name, ver, url);
+		}
+		if (json == ERR_RESULT || json == "")
+			return;
+
+		cj->readupjson(json, downloadurl, filename, nver);
+
+		printf("发现新版本，版本号:%d\n", nver);
+
+		MoreDownload(downloadurl, filename, nver);
+
+		MakeBat(name.c_str(), nver);
+	}
+	else
+	{
+		return;
+	}
+}
+
+int CreatDir(char *pDir)
+{
+	int i = 0;
+	int iRet;
+	int iLen;
+	char* pszDir;
+	if (NULL == pDir)
+	{
+		return 0;
+	}
+
+	pszDir = _strdup(pDir);
+	iLen = strlen(pszDir);
+	// 创建中间目录
+	for (i = 0; i < iLen; i++)
+	{
+		if (pszDir[i] == '\\' || pszDir[i] == '/')
+		{
+			pszDir[i] = '\0';
+			//如果不存在,创建
+			iRet = ACCESS(pszDir, 0);
+			if (iRet != 0)
+			{
+				iRet = MKDIR(pszDir);
+				if (iRet != 0)
+				{
+					return -1;
+				}
+			}
+			//支持linux,将所有\换成/
+			pszDir[i] = '/';
+		}
+	}
+	iRet = MKDIR(pszDir);
+	free(pszDir);
+	return iRet;
 }
