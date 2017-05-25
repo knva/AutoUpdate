@@ -34,14 +34,15 @@ public:
 		printf(".");
 	}
 };
+
 ///
 ///
 ///LC:下载文件  参数1 :下载地址   参数2 :保存文件名
 void Download(const char *pUrl, const char* filename,int ver);
 ///LC:提交POST 参数1:程序名  参数2:版本号
-string PostTest(string name, int ver);
+string PostTest(string name, int ver, string url);
 ///LC:使用GET方式获取信息 参数1:程序名  参数2:版本号
-string GetUpdate(string name, int ver);
+string GetUpdate(string name, int ver,string url);
 ///LC:创建批处理文件 参数1:程序名  参数2:版本号
 void MakeBat(const char* app,int ver);
 ///LC:支持多文件更新 参数1:下载地址  参数2:下载文件名 参数3:下载版本号
@@ -50,9 +51,9 @@ void MoreDownload(vector<string>, vector<string>,int ver);
 ///TODO 主函数
 int _tmain(int argc, char* argv[])
 {
-	if (argc != 3)
+	if (argc != 4)
 	{
-		printf("请输入软件名称及软件版本,例如:update.exe MyApp.exe 1");
+		printf("请输入软件名称,软件版本及更新地址,例如:update.exe MyApp.exe 1 update.com");
 		printf("运行软件之后,软件会生成AppConfig.json ,其中包含了软件名称及版本号.");
 		return 0;
 	}
@@ -64,12 +65,13 @@ int _tmain(int argc, char* argv[])
 	vector<string> filename;
 	configjson *rj = new configjson(string(argv[1]), atoi(argv[2]));
 	rj->readjson(name, ver);
+
 	if(GETMODE){
-		json = GetUpdate(name, ver);
+		json = GetUpdate(name, ver,string(argv[3]));
 	}
 	else
 	{
-		json = PostTest(name, ver);
+		json = PostTest(name, ver, string(argv[3]));
 	}
 	if (json == ERR_RESULT||json =="")
 		return 0;
@@ -81,7 +83,7 @@ int _tmain(int argc, char* argv[])
 
 	MakeBat(name.c_str(),nver);
 
-	system("pause");
+	//system("pause");
 
 	return 0;
 }
@@ -110,9 +112,9 @@ void Download(const char *pUrl,const char* filename,int ver)
 	libcurl.DownloadToFile(pUrl, updatedir);
 }
 
-string PostTest(string name, int ver)
+string PostTest(string name, int ver, string updateurl)
 {
-	char url[512] = "";
+	char url[128] = "";
 	const char *mname = name.data();
 	char strver[10] = "";
 	sprintf_s(strver, 10, "%d", ver);
@@ -121,7 +123,7 @@ string PostTest(string name, int ver)
 	sprintf_s(md5str, 128, "595902716@qq.com%lld",tt/100);
 	string mmd5 = MD5(md5str).toString();
 	const char * mmkey = mmd5.c_str();
-	sprintf_s(url, 512, "name=%s&version=%02d&publicKey=%s", mname, ver, mmkey);
+	sprintf_s(url, 128, "name=%s&version=%02d&publicKey=%s", mname, ver, mmkey);
 	CLibcurl libcurl;
 	libcurl.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
 	libcurl.SetPort(80);
@@ -131,7 +133,9 @@ string PostTest(string name, int ver)
 	libcurl.AddHeader("publicKey", mmkey);
 	libcurl.SetCookieFile("c:\\cookie");
 	//char* pData = "maintype=10001&subtype=100&appver=2.5.19.3753&sysver=Microsoft Windows 7&applist=100:15,200:2&sign=2553d888bc922275eca2fc539a5f0c1b";
-	libcurl.Post("http://127.0.0.1/autoupdate.php", url);
+	char postUrl[128];
+	sprintf_s(postUrl, 128, "http://%s/autoupdate.php", updateurl.c_str());
+	libcurl.Post(postUrl, url);
 	const char* pHtml = libcurl.GetResponsPtr();
 	const char* pError = libcurl.GetError();
 	if (strlen(pHtml) == 0)
@@ -141,7 +145,7 @@ string PostTest(string name, int ver)
 	return pHtml;
 }
 
-string GetUpdate(string name,int ver)
+string GetUpdate(string name,int ver, string updateurl)
 {
 	char url[512] = "";
 	const char *mname = name.data();
@@ -150,7 +154,7 @@ string GetUpdate(string name,int ver)
 	sprintf_s(md5str, 128, "595902716@qq.com%lld", tt / 100);
 	string mmd5 = MD5(md5str).toString();
 	const char * mmkey = mmd5.c_str();
-	sprintf_s(url,512, "http://127.0.0.1/autoupdate.php?name=%s&version=%02d&publicKey=%s", mname, ver,mmkey);
+	sprintf_s(url,512, "http://%s/autoupdate.php?name=%s&version=%02d&publicKey=%s",updateurl.c_str(), mname, ver,mmkey);
 	//printf(url);
 	CLibcurl libcurl;
 	libcurl.SetUserAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.86 Safari/537.36");
