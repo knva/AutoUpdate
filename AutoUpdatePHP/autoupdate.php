@@ -1,4 +1,5 @@
 <?php
+require("db_config.php");
 //get & send
 //Parameter1:get name
 //Parameter2:get version
@@ -114,7 +115,7 @@ if ((isset($_GET["name"]) && isset($_GET["version"]) && isset($_GET["publicKey"]
 		$publicKey = $_POST["publicKey"];
 	}
 	if ($publicKey == md5('595902716' . '@qq.com' . floor(time() / 100)) || $publicKey == "595902716") {
-		$dbh = new PDO("mysql:host=localhost;dbname=update;charset=utf8", "root", "root", array(PDO::ATTR_PERSISTENT => true));
+		$dbh = new PDO("mysql:host=".$db_host.";dbname=".$db_database.";charset=utf8",$db_username,$db_password, array(PDO::ATTR_PERSISTENT => true));
 		$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		flushmJson($mname, $version, $dbh);
