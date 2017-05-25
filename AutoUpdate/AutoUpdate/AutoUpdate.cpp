@@ -48,18 +48,21 @@ void MakeBat(const char* app,int ver);
 void MoreDownload(vector<string>, vector<string>,int ver);
 ///
 ///TODO 主函数
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, char* argv[])
 {
-	//DownloadTest();  
-	//PostTest();  
+	if (argc != 3)
+	{
+		printf("请输入软件名称及软件版本,例如:update.exe MyApp.exe 1");
+		printf("运行软件之后,软件会生成AppConfig.json ,其中包含了软件名称及版本号.");
+		return 0;
+	}
 	string name="";
 	int ver=0;
 	int nver = 0;
 	string json = "";
-
 	vector<string> downloadurl;
 	vector<string> filename;
-	configjson *rj = new configjson();
+	configjson *rj = new configjson(string(argv[1]), atoi(argv[2]));
 	rj->readjson(name, ver);
 	if(GETMODE){
 		json = GetUpdate(name, ver);
@@ -77,7 +80,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	MoreDownload(downloadurl, filename,nver);
 
 	MakeBat(name.c_str(),nver);
+
 	system("pause");
+
 	return 0;
 }
 void MoreDownload(vector<string>downloadurl, vector<string>filename,int ver)

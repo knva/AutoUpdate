@@ -3,12 +3,17 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/filewritestream.h"
+#include "rapidjson/filereadstream.h"
 #include <iostream>
-
+#include <fstream>
 using namespace rapidjson;
 using namespace std;
-configjson::configjson()
+#define FILENAME "./AppConfig.json"
+configjson::configjson(string app, int ver)
 {
+	appname = app;
+	version = ver;
 }
 
 
@@ -18,22 +23,26 @@ configjson::~configjson()
 
 int configjson::readjson(string &name, int &ver)
 {
-	// 1. 把 JSON 解析至 DOM。
-	const char* json = "{\"name\":\"update.exe\",\"version\":3}";
-	Document d;
-	d.Parse(json);
-	// 2. 利用 DOM 作出修改。
-	Value& ns = d["name"];
-	Value& s = d["version"];
-	//s.SetInt(s.GetInt() + 1);
-	//// 3. 把 DOM 转换（stringify）成 JSON。
-	//StringBuffer buffer;
-	//Writer<StringBuffer> writer(buffer);
-	//d.Accept(writer);
-	// Output {"project":"rapidjson","stars":11}
-	//std::cout << buffer.GetString() << std::endl;
-	name = ns.GetString();
-	ver = s.GetInt();
+
+		this->createjson(FILENAME, appname, version);
+#ifdef WIN32 
+		FILE* fp;
+		fopen_s(&fp, FILENAME, "rb"); // 非 Windows 平台使用 "r"
+#elif   (defined   (UNIX)   &&   defined(_LARGEFILE64_SOURCE)) 
+		FILE* fp = fopen(FILENAME, "r"); // 非 Windows 平台使用 "r"
+#endif 
+		char readBuffer[512];
+		FileReadStream is(fp, readBuffer, sizeof(readBuffer));
+		Document d;
+		d.ParseStream(is);
+		fclose(fp);
+		Value& n = d["name"];
+		Value& v = d["ver"];
+
+		name = n.GetString();
+		ver = v.GetInt();
+
+	
 	return 0;
 }
 int configjson::readjson(string json, vector<string> &url, vector<string> &filename, int &ver)
@@ -54,9 +63,32 @@ int configjson::readjson(string json, vector<string> &url, vector<string> &filen
 	}
 	return 0;
 }
-void configjson::writejson()
+
+void configjson::createjson(string filename, string app, int ver)
 {
-}
-void configjson::createjson()
-{
+	Document document;
+	document.SetObject();
+	Value appname;
+	char buffer[32];
+	int len = sprintf_s(buffer, 32, "%s", app.c_str()); // 动态创建的字符串。
+	appname.SetString(buffer, len, document.GetAllocator());
+	memset(buffer, 0, sizeof(buffer));
+	Value version;
+	version.SetInt(ver);
+	document.AddMember("name", appname, document.GetAllocator());
+	document.AddMember("ver", version, document.GetAllocator());
+
+
+#ifdef WIN32 
+	FILE* fp;
+	fopen_s(&fp, FILENAME, "wb"); // 非 Windows 平台使用 "r"
+#elif   (defined   (UNIX)   &&   defined(_LARGEFILE64_SOURCE)) 
+	FILE* fp = fopen(FILENAME, "w"); // 非 Windows 平台使用 "r"
+#endif 
+	char writeBuffer[65536];
+	FileWriteStream os(fp, writeBuffer, sizeof(writeBuffer));
+	Writer<FileWriteStream> writer(os);
+	document.Accept(writer);
+	fclose(fp);
+
 }
