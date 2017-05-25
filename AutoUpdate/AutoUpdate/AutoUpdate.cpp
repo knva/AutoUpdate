@@ -40,13 +40,13 @@ public:
 ///
 ///
 ///LC:下载文件  参数1 :下载地址   参数2 :保存文件名
-void Download(const char *pUrl, const char* filename, int ver);
+void Download(string pUrl, string filename, int ver);
 ///LC:提交POST 参数1:程序名  参数2:版本号
 string PostTest(string name, int ver, string url);
 ///LC:使用GET方式获取信息 参数1:程序名  参数2:版本号
 string GetUpdate(string name, int ver, string url);
 ///LC:创建批处理文件 参数1:程序名  参数2:版本号
-void MakeBat(const char* app, int ver);
+void MakeBat(string app, int ver);
 ///LC:支持多文件更新 参数1:下载地址  参数2:下载文件名 参数3:下载版本号
 void MoreDownload(vector<string>, vector<string>, int ver);
 ///UP:存在json时,使用--u命令直接更新
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
 	MoreDownload(downloadurl, filename, nver);
 
-	MakeBat(name.c_str(), nver);
+	MakeBat(name, nver);
 
 	//system("pause");
 
@@ -112,11 +112,11 @@ void MoreDownload(vector<string>downloadurl, vector<string>filename, int ver)
 	CreatDir(updatedir);
 	for (unsigned int i = 0; i < downloadurl.size(); i++)
 	{
-		Download(downloadurl.at(i).c_str(), filename.at(i).c_str(), ver);
+		Download(downloadurl.at(i), filename.at(i), ver);
 	}
 }
 
-void Download(const char *pUrl, const char* filename, int ver)
+void Download(string pUrl, string filename, int ver)
 {
 	CLibcurl libcurl;
 	CLibcurlCallbackEx cb;
@@ -125,9 +125,9 @@ void Download(const char *pUrl, const char* filename, int ver)
 	libcurl.SetResumeFrom(0);
 	libcurl.SetCallback(&cb, NULL);
 	char updatedir[128] = "";
-	sprintf_s(updatedir, 128, "update//%d//%s", ver, filename);
+	sprintf_s(updatedir, 128, "update//%d//%s", ver, filename.c_str());
 
-	libcurl.DownloadToFile(pUrl, updatedir);
+	libcurl.DownloadToFile(pUrl.c_str(), updatedir);
 }
 
 string PostTest(string name, int ver, string updateurl)
@@ -185,7 +185,7 @@ string GetUpdate(string name, int ver, string updateurl)
 	}
 	return pHtml;
 }
-void MakeBat(const char* app, int ver)
+void MakeBat(string app, int ver)
 {
 
 	char tmp[256];
@@ -199,11 +199,11 @@ void MakeBat(const char* app, int ver)
 		return;
 	}
 	fprintf(fbat, "@echo off\n");
-	fprintf(fbat, "taskkill /F /IM %s\n", app);
+	fprintf(fbat, "taskkill /F /IM %s\n", app.c_str());
 	fprintf(fbat, "ping -n 2 127.1>nul\n");
 	fprintf(fbat, "copy /Y .\\update\\%d\\* .\\\n", ver);
 
-	fprintf(fbat, "start %s",app);
+	fprintf(fbat, "start %s",app.c_str());
 	if (fbat)
 	{
 		err = fclose(fbat);
@@ -246,7 +246,7 @@ void checkUpdate()
 
 		MoreDownload(downloadurl, filename, nver);
 
-		MakeBat(name.c_str(), nver);
+		MakeBat(name, nver);
 	}
 	else
 	{
