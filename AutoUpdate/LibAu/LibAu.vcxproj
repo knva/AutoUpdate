@@ -132,7 +132,8 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>copy $(SolutionDir)LibAuTest\lib\LibAu.* $(SolutionDir)release\</Command>
+      <Command>if not exist $(SolutionDir)release\ md $(SolutionDir)release\
+copy $(SolutionDir)LibAuTest\lib\LibAu.* $(SolutionDir)release\</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>copy $(SolutionDir)LibAuTest\lib\LibAu.* $(SolutionDir)release\</Message>
