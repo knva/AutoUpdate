@@ -74,6 +74,7 @@
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)d</TargetName>
     <OutDir>$(SolutionDir)LibAuTest\lib\</OutDir>
+    <CustomBuildAfterTargets>Link</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -81,6 +82,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)LibAuTest\lib\</OutDir>
+    <CustomBuildAfterTargets>Link</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -95,6 +97,14 @@
     <Link>
       <SubSystem>Windows</SubSystem>
     </Link>
+    <CustomBuildStep>
+      <Command>copy $(SolutionDir)LibAuTest\lib\LibAud* $(SolutionDir)debug\</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>copy $(SolutionDir)LibAuTest\lib\LibAud* $(SolutionDir)debug\</Message>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
+      <Outputs>a.txt</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -121,6 +131,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <CustomBuildStep>
+      <Command>copy $(SolutionDir)LibAuTest\lib\LibAu.* $(SolutionDir)release\</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>copy $(SolutionDir)LibAuTest\lib\LibAu.* $(SolutionDir)release\</Message>
+      <Outputs>b.txt</Outputs>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

@@ -15,6 +15,7 @@ class LIBAU_API CLibAu {
 public:
 	CLibAu(void);
 	// TODO:  在此添加您的方法。
+	void check(const char *softname,int ver ,const char *url);
 };
 
 extern LIBAU_API int nLibAu;

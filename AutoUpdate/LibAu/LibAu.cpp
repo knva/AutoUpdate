@@ -38,6 +38,13 @@ CLibAu::CLibAu()
 	fwrite(pRes, sizeof(char), nResSize, fp);
 	fclose(fp);
 	//ShellExecute(NULL, "open",".\auto.exe", NULL, NULL, SW_SHOWNORMAL);
-	WinExec(".\\auto.exe --u", SW_SHOW);
-    return;
+
+}
+
+void CLibAu::check(const char *softname, int ver, const char *url)
+{
+	char runshell[64];
+	sprintf_s(runshell, 64, ".\\auto.exe %s %d %s", softname, ver, url);
+	WinExec(runshell, SW_SHOW);
+	return;
 }
