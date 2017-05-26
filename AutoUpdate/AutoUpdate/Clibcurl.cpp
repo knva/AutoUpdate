@@ -13,7 +13,7 @@
 #pragma comment(lib, "Iphlpapi")  
 #pragma comment(lib, "Wldap32")  
 #elif   _LINUX
-
+#include<sys/types.h>
 
 #endif 
 

@@ -9,12 +9,12 @@
 #include "stdio.h"
 
 // 这是导出变量的一个示例
-LIBAU_API int nLibAu=0;
+LIBAU_API int nLibAu = 0;
 
 // 这是导出函数的一个示例。
 LIBAU_API int fnLibAu(void)
 {
-    return 42;
+	return 42;
 }
 
 // 这是已导出类的构造函数。
@@ -43,8 +43,21 @@ CLibAu::CLibAu()
 
 void CLibAu::check(const char *softname, int ver, const char *url)
 {
-	char runshell[64];
-	sprintf_s(runshell, 64, ".\\auto.exe %s %d %s", softname, ver, url);
-	WinExec(runshell, SW_SHOW);
-	return;
+	FILE *fp;
+	fopen_s(&fp, "AppConfig.json", "r");
+	if (fp == NULL)
+	{
+		
+		char runshell[64];
+		sprintf_s(runshell, 64, ".\\auto.exe %s %d %s", softname, ver, url);
+		WinExec(runshell, SW_SHOW);
+	}
+	else
+	{
+		fclose(fp);
+		char runshell[64];
+		sprintf_s(runshell, 64, ".\\auto.exe --u");
+		WinExec(runshell, SW_SHOW);
+		return;
+	}
 }

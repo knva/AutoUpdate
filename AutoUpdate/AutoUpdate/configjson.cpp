@@ -7,6 +7,7 @@
 #include "rapidjson/filereadstream.h"
 #include <iostream>
 #include <fstream>
+#include "base64.h"
 using namespace rapidjson;
 using namespace std;
 #define FILENAME "./AppConfig.json"
@@ -65,6 +66,7 @@ int configjson::readupjson(string json, vector<string> &url, vector<string> &fil
 
 int configjson::checkUp(string &name, int &ver,string &url)
 {
+	ZBase64 zBase;
 	if(checkJson()){
 #ifdef WIN32 
 		FILE* fp;
@@ -83,7 +85,11 @@ int configjson::checkUp(string &name, int &ver,string &url)
 
 		name = n.GetString();
 		ver = v.GetInt();
-		url = u.GetString();
+		string murl = u.GetString();
+		int OutByte = 0;
+		string strTmpResult = zBase.Decode(murl.c_str(), murl.length(), OutByte);
+		url = strTmpResult;
+		
 		return 1;
 	}
 	else{
@@ -93,6 +99,7 @@ int configjson::checkUp(string &name, int &ver,string &url)
 
 void configjson::createjson(string filename, string app, int ver,string url)
 {
+	ZBase64 zBase;
 	Document document;
 	document.SetObject();
 	Value appname;
@@ -101,7 +108,8 @@ void configjson::createjson(string filename, string app, int ver,string url)
 	appname.SetString(buffer, len, document.GetAllocator());
 	memset(buffer, 0, sizeof(buffer));
 	Value aupurl;
-	len = sprintf_s(buffer, 32, "%s", url.c_str()); // 动态创建的字符串。
+	string encoded = zBase.Encode(reinterpret_cast<const unsigned char*>(url.c_str()), url.length());
+	len = sprintf_s(buffer, 32, "%s", encoded.c_str()); // 动态创建的字符串。
 	aupurl.SetString(buffer, len, document.GetAllocator());
 	memset(buffer, 0, sizeof(buffer));
 	Value version;
