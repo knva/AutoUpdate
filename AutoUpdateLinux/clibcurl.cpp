@@ -6,16 +6,19 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#define UNUSED(x) (void)x
+
+
 
 CLibcurl::CLibcurl(void)
     : m_pCurl(NULL)
     , m_nPort(80)
     , m_hFile(INVALID_HANDLE_VALUE)
-    , m_pCallback(NULL)
-    , m_pCallbackParam(NULL)
     , m_curlCode(CURLE_OK)
     , m_lfFlag(Lf_None)
     , m_curlList(NULL)
+    , m_pCallbackParam(NULL)
+    , m_pCallback(NULL)
 {
     m_pCurl = curl_easy_init();
     curl_easy_setopt(m_pCurl, CURLOPT_WRITEFUNCTION, WriteCallback);
@@ -135,6 +138,7 @@ void CLibcurl::SetCallback( CLibcurlCallback* pCallback, void* lpParam )
 bool CLibcurl::DownloadToFile( LPCSTR lpUrl, LPCSTR lpFile )
 {
     CURLcode code = curl_easy_setopt(m_pCurl, CURLOPT_URL, lpUrl);
+    UNUSED(code);
     delete(lpFile);
     m_hFile = open(lpFile, O_RDWR | O_CREAT, 0666);
     if ( INVALID_HANDLE_VALUE == m_hFile )
@@ -208,25 +212,25 @@ size_t CLibcurl::WriteCallback( void* pBuffer, size_t nSize, size_t nMemByte, vo
     switch( pThis->m_lfFlag )
     {
     case Lf_Download://下载
+    {
+        if ( pThis->m_hFile == INVALID_HANDLE_VALUE )
+            return 0;
+        //   if ( !WriteFile(pThis->m_hFile, pBuffer, nSize*nMemByte, &dwWritten, NULL) )
+        //      return 0;
+        //ssize_t write (int fd,const void * buf,size_t count);
+        dwWritten = write(pThis->m_hFile,pBuffer,nSize*nMemByte);
+        if(dwWritten)
         {
-            if ( pThis->m_hFile == INVALID_HANDLE_VALUE )
-                return 0;
-         //   if ( !WriteFile(pThis->m_hFile, pBuffer, nSize*nMemByte, &dwWritten, NULL) )
-          //      return 0;
-            //ssize_t write (int fd,const void * buf,size_t count);
-            dwWritten = write(pThis->m_hFile,pBuffer,nSize*nMemByte);
-          if(dwWritten==-1)
-          {
-          return 0 ;
-          }
+            return 0 ;
         }
+    }
         break;
     case Lf_Post://Post数据
     case Lf_Get://Get数据
-        {
-            pThis->m_strRespons.append((const char*)pBuffer, nSize*nMemByte);
-            dwWritten = nSize*nMemByte;
-        }
+    {
+        pThis->m_strRespons.append((const char*)pBuffer, nSize*nMemByte);
+        dwWritten = nSize*nMemByte;
+    }
         break;
     case Lf_None://未定义
         break;
@@ -237,11 +241,18 @@ size_t CLibcurl::WriteCallback( void* pBuffer, size_t nSize, size_t nMemByte, vo
 size_t CLibcurl::HeaderCallback( void* pBuffer, size_t nSize, size_t nMemByte, void* pParam )
 {
     CLibcurl* pThis = (CLibcurl*)pParam;
+    UNUSED(pThis);
+    UNUSED(pBuffer);
+
+    UNUSED(nSize);
+    UNUSED(nMemByte);
     return 0;
 }
 
 int CLibcurl::ProgressCallback( void *pParam, double dltotal, double dlnow, double ultotal, double ulnow )
 {
+    UNUSED(ultotal);
+    UNUSED(ulnow);
     CLibcurl* pThis = (CLibcurl*)pParam;
     if ( pThis->m_pCallback )
     {

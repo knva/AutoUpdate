@@ -111,6 +111,7 @@ void configjson::createjson(string filename, string app, int ver,string url)
 	Value aupurl;
 	string encoded = zBase.Encode(reinterpret_cast<const unsigned char*>(url.c_str()), url.length());
     len = snprintf(buffer, 32, "%s", encoded.c_str());
+    aupurl.SetString(buffer,len,document.GetAllocator());
 	memset(buffer, 0, sizeof(buffer));
 	Value version;
 	version.SetInt(ver);

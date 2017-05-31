@@ -1,128 +1,94 @@
 
-#ifndef MD5_H
-#define MD5_H
+#ifndef MD5_H_
+#define MD5_H_
 
-/* Parameters of MD5. */
-#define s11 7
-#define s12 12
-#define s13 17
-#define s14 22
-#define s21 5
-#define s22 9
-#define s23 14
-#define s24 20
-#define s31 4
-#define s32 11
-#define s33 16
-#define s34 23
-#define s41 6
-#define s42 10
-#define s43 15
-#define s44 21
+/* MD5
+ converted to C++ class by Frank Thilo (thilo@unix-ag.org)
+ for bzflag (http://www.bzflag.org)
 
-/**
- * @Basic MD5 functions.
- *
- * @param there bit32.
- *
- * @return one bit32.
+ based on:
+
+ md5.h and md5.c
+ reference implementation of RFC 1321
+
+ Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
+ rights reserved.
+
+ License to copy and use this software is granted provided that it
+ is identified as the "RSA Data Security, Inc. MD5 Message-Digest
+ Algorithm" in all material mentioning or referencing this software
+ or this function.
+
+ License is also granted to make and use derivative works provided
+ that such works are identified as "derived from the RSA Data
+ Security, Inc. MD5 Message-Digest Algorithm" in all material
+ mentioning or referencing the derived work.
+
+ RSA Data Security, Inc. makes no representations concerning either
+ the merchantability of this software or the suitability of this
+ software for any particular purpose. It is provided "as is"
+ without express or implied warranty of any kind.
+
+ These notices must be retained in any copies of any part of this
+ documentation and/or software.
+
  */
-#define F(x, y, z) (((x) & (y)) | ((~x) & (z)))
-#define G(x, y, z) (((x) & (z)) | ((y) & (~z)))
-#define H(x, y, z) ((x) ^ (y) ^ (z))
-#define I(x, y, z) ((y) ^ ((x) | (~z)))
 
-/**
- * @Rotate Left.
- *
- * @param {num} the raw number.
- *
- * @param {n} rotate left n.
- *
- * @return the number after rotated left.
- */
-#define ROTATELEFT(num, n) (((num) << (n)) | ((num) >> (32-(n))))
-
-/**
- * @Transformations for rounds 1, 2, 3, and 4.
- */
-#define FF(a, b, c, d, x, s, ac) { \
-  (a) += F ((b), (c), (d)) + (x) + ac; \
-  (a) = ROTATELEFT ((a), (s)); \
-  (a) += (b); \
-}
-#define GG(a, b, c, d, x, s, ac) { \
-  (a) += G ((b), (c), (d)) + (x) + ac; \
-  (a) = ROTATELEFT ((a), (s)); \
-  (a) += (b); \
-}
-#define HH(a, b, c, d, x, s, ac) { \
-  (a) += H ((b), (c), (d)) + (x) + ac; \
-  (a) = ROTATELEFT ((a), (s)); \
-  (a) += (b); \
-}
-#define II(a, b, c, d, x, s, ac) { \
-  (a) += I ((b), (c), (d)) + (x) + ac; \
-  (a) = ROTATELEFT ((a), (s)); \
-  (a) += (b); \
-}
-
-#include <string>
 #include <cstring>
+#include <iostream>
 
-using std::string;
-
-/* Define of btye.*/
-typedef unsigned char byte;
-/* Define of byte. */
-typedef unsigned int bit32;
-
+// a small class for calculating MD5 hashes of strings or byte arrays
+// it is not meant to be fast or secure
+//
+// usage: 1) feed it blocks of uchars with update()
+//      2) finalize()
+//      3) get hexdigest() string
+//      or
+//      MD5(std::string).hexdigest()
+//
+// assumes that char is 8 bit and int is 32 bit
 class MD5 {
-public:
-  /* Construct a MD5 object with a string. */
-  MD5(const string& message);
+    public:
+        typedef unsigned int size_type; // must be 32bit
 
-  /* Generate md5 digest. */
-  const byte* getDigest();
+        MD5();
+        MD5(const std::string& text);
+        void update(const unsigned char *buf, size_type length);
+        void update(const char *buf, size_type length);
+        MD5& finalize();
+        std::string hexdigest() const;
+        friend std::ostream& operator<<(std::ostream&, MD5 md5);
 
-  /* Convert digest to string value */
-  string toStr();
+    private:
+        void init();
+        typedef unsigned char uint1; //  8bit
+        typedef unsigned int uint4;  // 32bit
+        enum {
+            blocksize = 64
+        }; // VC6 won't eat a const static int here
 
-private:
-  /* Initialization the md5 object, processing another message block,
-   * and updating the context.*/
-  void init(const byte* input, size_t len);
+        void transform(const uint1 block[blocksize]);
+        static void decode(uint4 output[], const uint1 input[], size_type len);
+        static void encode(uint1 output[], const uint4 input[], size_type len);
 
-  /* MD5 basic transformation. Transforms state based on block. */
-  void transform(const byte block[64]);
+        bool finalized;
+        uint1 buffer[blocksize]; // bytes that didn't fit in last 64 byte chunk
+        uint4 count[2];   // 64bit counter for number of bits (lo, hi)
+        uint4 state[4];   // digest so far
+        uint1 digest[16]; // the result
 
-  /* Encodes input (usigned long) into output (byte). */
-  void encode(const bit32* input, byte* output, size_t length);
-
-  /* Decodes input (byte) into output (usigned long). */
-  void decode(const byte* input, bit32* output, size_t length);
-
-private:
-  /* Flag for mark whether calculate finished. */
-  bool finished;
-
-	/* state (ABCD). */
-  bit32 state[4];
-
-  /* number of bits, low-order word first. */
-  bit32 count[2];
-
-  /* input buffer. */
-  byte buffer[64];
-
-  /* message digest. */
-  byte digest[16];
-
-	/* padding for calculate. */
-  static const byte PADDING[64];
-
-  /* Hex numbers. */
-  static const char HEX_NUMBERS[16];
+        // low level logic operations
+        static inline uint4 F(uint4 x, uint4 y, uint4 z);
+        static inline uint4 G(uint4 x, uint4 y, uint4 z);
+        static inline uint4 H(uint4 x, uint4 y, uint4 z);
+        static inline uint4 I(uint4 x, uint4 y, uint4 z);
+        static inline uint4 rotate_left(uint4 x, int n);
+        static inline void FF(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+        static inline void GG(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+        static inline void HH(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+        static inline void II(uint4 &a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
 };
 
-#endif // MD5_H
+std::string md5(const std::string str);
+
+#endif /* MD5_H_ */
