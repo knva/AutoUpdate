@@ -51,7 +51,7 @@ jQuery(function() {
         swf:  'upcontrol/Uploader.swf',
 
         // 文件接收服务端。
-        server: 'http://localhost/admin/fileupload2.php',
+        server: 'http://localhost/admin/upcontrol/userupload/fileupload2.php',
 
         // 选择文件的按钮。可选。
         // 内部根据当前运行是创建，可能是input元素，也可能是flash.
