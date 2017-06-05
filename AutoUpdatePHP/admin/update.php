@@ -1,34 +1,27 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
- <head> 
-  <meta charset="utf-8" /> 
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
-  <meta name="viewport" content="width=device-width, initial-scale=1" /> 
-  <title>文件上传</title> 
-  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" /> 
-  <link rel="stylesheet" type="text/css" href="upcontrol/webuploader.css" /> 
- </head> 
- <body> 
- <div id="post-container" class="container">
+ <link rel="stylesheet" type="text/css" href="upcontrol/webuploader.css" /> 
 
-    <div class="row">
-        <div class="col-md-1">
-   <div class="container"> 
-    <h1>文件上传</h1> 
+   <h1>文件上传</h1> 
+<form class="form-inline">
+  <div class="form-group">
+    <label for="softname">软件名称</label>
+    <input type="text" class="form-control" id="softname1" placeholder="softname">
+  </div>
+  <div class="form-group">
+    <label for="version">版本号</label>
+    <input type="text" class="form-control" id="version1" placeholder="version">
+  </div>
+<button type="submit" class="btn btn-default">提交</button>
+ 
     <div id="uploader" class="wu-example"> 
      <div id="thelist" class="uploader-list"></div> 
      <div class="btns"> 
-     
-  <div id="picker">选择文件</div> 
-      <button id="ctlBtn" class="btn btn-default" style="">开始上传</button> 
+    <div id="picker">选择文件</div>  </div> <button id="ctlBtn" class="btn btn-default" style="">开始上传</button> 
     
-     </div> 
     </div>
    </div>
-  </div> 
-      </div>
-   </div>
-  </div> 
+  
+</form>
+
   <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script> 
   <!-- Include all compiled plugins (below), or include individual files as needed --> 
   <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> 
@@ -121,5 +114,3 @@ jQuery(function() {
     });
 });
 </script>  
- </body>
-</html>

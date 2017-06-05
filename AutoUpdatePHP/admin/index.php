@@ -1,10 +1,17 @@
 <?php
 session_start();  
-  
+if(isset($_SESSION['expiretime'])) {
+    if($_SESSION['expiretime'] < time()) {
+        unset($_SESSION['expiretime']);
+        header('Location: users/logout.php?action=logout'); // 登出
+        exit(0);
+    } else {
+        $_SESSION['expiretime'] = time() + 5; // 刷新时间戳
+    }
+}
 //检测是否登录，若没登录则转向登录界面  
-
 if(!isset($_SESSION['username'])){  
-    header("Location:users/login.html");  
+    header("Location:users/login.php");  
     exit();  
 }
 
@@ -75,13 +82,13 @@ if(!isset($_SESSION['username'])){
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
                 <ul class="nav nav-sidebar">
-                    <li class="active"><a href="#" onclick="document.getElementById('log').style.display='none';document.getElementById('something').style.display='block';">总览 <span class="sr-only">(current)</span></a></li>
-                    <li><a href="#">提交更新</a></li>
-                    <li><a href="#" onclick="document.getElementById('log').style.display='block';document.getElementById('something').style.display='none';">查询更新日志</a></li>
-                    <li><a href="#">导出更新日志</a></li>
+                    <li class="active"><a href="javascript:;">总览 <span class="sr-only">(current)</span></a></li>
+                    <li><a href="javascript:;" onclick="commitUpdate()">提交更新</a></li>
+                    <li><a href="javascript:;" onclick="log()">查询更新日志</a></li>
+                    <li><a href="javascript:;">导出更新日志</a></li>
                 </ul>
                 <ul class="nav nav-sidebar">
-                    <li><a href="">查看更新记录</a></li>
+                    <li><a href="javascript:;" onclick="softlog()" >查看更新记录</a></li>
 
                 </ul>
                 <ul class="nav nav-sidebar">
@@ -130,6 +137,11 @@ if(!isset($_SESSION['username'])){
                 </div>
             </div>
 
+
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" id='up'>
+
+            </div>
+
         </div>
     </div>
 
@@ -163,6 +175,45 @@ if(!isset($_SESSION['username'])){
                 }
             );
         });
+
+    function log()
+    {
+      fulshActive(6);
+        document.getElementById('log').style.display='block';
+
+        document.getElementById('something').style.display='none';
+        document.getElementById('up').style.display='none';
+       
+    }
+    function commitUpdate()
+    {
+        fulshActive(5);
+        document.getElementById('log').style.display='none';
+        document.getElementById('something').style.display='none';
+            document.getElementById('up').style.display='block';
+       
+        $.get("update.php","",function(msg)
+        {
+             $("#up").html(msg);
+        });
+       
+    }
+function softlog()
+{
+    
+        fulshActive(8);
+                document.getElementById('log').style.display='none';
+
+        document.getElementById('something').style.display='block';
+        document.getElementById('up').style.display='none';
+}
+
+    function fulshActive(num)
+    {
+     $('li:gt('+num+')').removeClass("active");
+     $('li:lt('+num+')').removeClass("active");
+     $('li:eq('+num+')').addClass("active");
+    }
     </script>
 </body>
 
