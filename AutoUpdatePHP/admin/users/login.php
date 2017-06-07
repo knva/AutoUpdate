@@ -8,7 +8,7 @@ if(isset($_SESSION['expiretime'])) {
         header('Location: logout.php?action=logout'); // 登出
         exit(0);
     } else {
-        $_SESSION['expiretime'] = time() + 5; // 刷新时间戳
+        $_SESSION['expiretime'] = time() + 500; // 刷新时间戳
     }
 }
 
@@ -33,7 +33,7 @@ require("../../db_config.php");
 		$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $res=$dbh->query("select * from user where username='$username' and passwd='$password' limit 1");
-
+  $dbh=NULL;
 if($res->fetchColumn() >0 ){  
     //登录成功  
 
@@ -45,7 +45,7 @@ $_SESSION['expiretime'] = time();
 } else {  
     echo 'error';  
 }  
-  $dbh=NULL;
+
   
        //   echo 'success';
         //header('location:../index.php');

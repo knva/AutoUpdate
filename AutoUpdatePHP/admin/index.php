@@ -6,7 +6,7 @@ if(isset($_SESSION['expiretime'])) {
         header('Location: users/logout.php?action=logout'); // 登出
         exit(0);
     } else {
-        $_SESSION['expiretime'] = time() + 5; // 刷新时间戳
+        $_SESSION['expiretime'] = time() + 500; // 刷新时间戳
     }
 }
 //检测是否登录，若没登录则转向登录界面  

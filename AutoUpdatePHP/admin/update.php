@@ -11,16 +11,16 @@
     <input type="text" class="form-control" id="version1" placeholder="version">
   </div>
 <button type="submit" class="btn btn-default">提交</button>
- 
+ </form>
     <div id="uploader" class="wu-example"> 
      <div id="thelist" class="uploader-list"></div> 
      <div class="btns"> 
-    <div id="picker">选择文件</div>  </div> <button id="ctlBtn" class="btn btn-default" style="">开始上传</button> 
+    <div id="picker">选择文件</div>  </div> <button id="ctlBtn" class="btn btn-default up-btn" style="">开始上传</button> 
     
     </div>
    </div>
   
-</form>
+
 
   <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script> 
   <!-- Include all compiled plugins (below), or include individual files as needed --> 
