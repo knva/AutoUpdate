@@ -44,6 +44,7 @@ $_SESSION['expiretime'] = time();
     exit;  
 } else {  
     echo 'error';  
+    exit;
 }  
 
   
@@ -105,7 +106,6 @@ $_SESSION['expiretime'] = time();
             <div class="checkbox">
                 <p>
                     <div id="serverResponse"></div>
-
                 </p>
                 <label>
             <input type="checkbox" value="remember-me"> 记住我
@@ -113,7 +113,6 @@ $_SESSION['expiretime'] = time();
             </div>
             <button name="submit" id="login" class="btn btn-lg btn-primary btn-block" type="submit">登陆</button>
         </form>
-
     </div>
     <!-- /container -->
     <!-- Bootstrap core JavaScript

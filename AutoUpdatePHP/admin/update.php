@@ -1,32 +1,37 @@
- <link rel="stylesheet" type="text/css" href="upcontrol/webuploader.css" /> 
-
-   <h1>文件上传</h1> 
-<form class="form-inline">
-  <div class="form-group">
-    <label for="softname">软件名称</label>
-    <input type="text" class="form-control" id="softname1" placeholder="softname">
-  </div>
-  <div class="form-group">
-    <label for="version">版本号</label>
-    <input type="text" class="form-control" id="version1" placeholder="version">
-  </div>
-<button type="submit" class="btn btn-default">提交</button>
- </form>
-    <div id="uploader" class="wu-example"> 
-     <div id="thelist" class="uploader-list"></div> 
-     <div class="btns"> 
-    <div id="picker">选择文件</div>  </div> <button id="ctlBtn" class="btn btn-default up-btn" style="">开始上传</button> 
-    
-    </div>
-   </div>
-  
-
-
+<html>
+ <head>
+  <link rel="stylesheet" type="text/css" href="upcontrol/webuploader.css" /> 
+ </head>
+ <body>
+  <h1>文件上传</h1> 
+  <form class="form-inline" > 
+   <div class="form-group"> 
+    <label for="softname">软件名称</label> 
+    <input type="text" class="form-control" id="softname1" placeholder="softname" /> 
+   </div> 
+   <div class="form-group"> 
+    <label for="version">版本号</label> 
+    <input type="text" class="form-control" id="version1" placeholder="version" /> 
+   </div> 
+   <div class ="form-group" id='msgBox'></div>
+   <input type='button'id="commit" class="btn btn-default" value="提交"></input> 
+  </form> 
+  <div id="uploader" class="wu-example"> 
+   <div id="thelist" class="uploader-list"></div> 
+     <span>
+   <div class="btns"> 
+     <div id="picker">
+      选择文件
+     </div>
+   </div> 
+   <button id="ctlBtn" class="btn btn-default up-btn" style="">开始上传</button></span>
+  </div>  
   <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script> 
   <!-- Include all compiled plugins (below), or include individual files as needed --> 
   <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script> 
   <script type="text/javascript" src="upcontrol/webuploader.js"></script> 
   <script>
+  var url = new Array();
 // 文件上传
 jQuery(function() {
     var $ = jQuery,
@@ -78,7 +83,9 @@ jQuery(function() {
     });
 
     uploader.on( 'uploadSuccess', function( file ) {
+        url.push("http://127.0.0.1/upcontrol/userupload/uploads/"+file.name)
         $( '#'+file.id ).find('p.state').text('已上传');
+        
     });
 
     uploader.on( 'uploadError', function( file ) {
@@ -113,4 +120,33 @@ jQuery(function() {
         }
     });
 });
-</script>  
+
+$("#commit").click(function() {
+    var name = document.getElementById("softname1").value;
+    var version = document.getElementById("version1").value;
+    var murl = url.toString();
+    console.log(murl);
+    if (name == "" || version == "" || url == "") {
+        $("#msgBox").html("软件名称与版本号不能为空.版本号会根据数据库内的版本号自动增加")
+
+    } else {
+        $.get("common/action.php?action=upLoad", {
+            name: name,
+            version: version,
+            url: murl
+        },
+        function(msg) {
+            if (msg == "error") {
+                $("#msgBox").html("错误");
+            } else {
+                $("#msgBox").html("成功");
+            }
+        });
+
+    }
+});
+
+</script> 
+ </body>
+</html>
+

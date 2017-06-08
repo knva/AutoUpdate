@@ -82,7 +82,7 @@ if(!isset($_SESSION['username'])){
         <div class="row">
             <div class="col-sm-3 col-md-2 sidebar">
                 <ul class="nav nav-sidebar">
-                    <li class="active"><a href="javascript:;">总览 <span class="sr-only">(current)</span></a></li>
+                    <li class="active"><a href="javascript:;" onclick=" location.href = 'index.php';fulshActive(4);">总览 <span class="sr-only">(current)</span></a></li>
                     <li><a href="javascript:;" onclick="commitUpdate()">提交更新</a></li>
                     <li><a href="javascript:;" onclick="log()">查询更新日志</a></li>
                     <li><a href="javascript:;">导出更新日志</a></li>
@@ -105,7 +105,7 @@ if(!isset($_SESSION['username'])){
                                 <th>id</th>
                                 <th>下载路径</th>
                                 <th>更新时间</th>
-                                <th>版本号</th>
+                                <th>版本</th>
                                 <th>主程序名称</th>
                             </tr>
                         </thead>
@@ -136,12 +136,8 @@ if(!isset($_SESSION['username'])){
                     </table>
                 </div>
             </div>
-
-
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" id='up'>
-
             </div>
-
         </div>
     </div>
 
@@ -159,20 +155,33 @@ if(!isset($_SESSION['username'])){
     <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
 
     <script>
+
         $(document).ready(function() {
+
             $.get(
                 "common/action.php",
                 "action=Soft",
                 function(msg) {
-                    $("#tb1").html(msg);
-                }
+  //console.log(msg.length);
+  var mhtml;
+  var button = "<td><input id ='editbtn' type='button' value='edit' class='btn  btn-success' onclick=\"edit()\"/></td>\
+  <td><input id ='delbtn' type='button' value='delete' class='btn  btn-danger' onclick=\"del()\"/></td>";
+  for(var i = 0 ; i <msg.length; i ++){
+   mhtml+= "<tr><td>"+msg[i].id+"</td><td>"+msg[i].downloadurl+"</td><td>"+msg[i].time+"</td><td>"+msg[i].version+"</td><td>"+msg[i].exename+"</td>"+button+"</tr>";
+ }
+                $("#tb1").html(mhtml);
+                },"json"
             );
             $.get(
                 "common/action.php",
                 "action=log",
                 function(msg) {
-                    $("#tb2").html(msg);
-                }
+                   var mhtml;
+  for(var i = 0 ; i <msg.length; i ++){
+   mhtml+= "<tr><td>"+msg[i].id+"</td><td>"+msg[i].time+"</td><td>"+msg[i].json+"</td><td>"+msg[i].version+"</td><td>"+msg[i].ip+"</td></tr>";
+  }
+    $("#tb2").html(mhtml);
+                },"json"
             );
         });
 
@@ -214,6 +223,11 @@ function softlog()
      $('li:lt('+num+')').removeClass("active");
      $('li:eq('+num+')').addClass("active");
     }
+    function edit()
+    {
+        alert('aaa');
+    }
+
     </script>
 </body>
 
