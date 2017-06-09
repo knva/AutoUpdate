@@ -58,6 +58,27 @@ function uploadUpdate($name,$version,$url) {
 	
 	
 }
+function getEditlist()
+{
+	$findid = $_GET['id'];
+
+require ("../../db_config.php");
+	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
+	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$sqlstr = 'select * from serverupdate where id='.$findid;
+    $res = $dbh->query($sqlstr);
+    $arr =array();
+    foreach($res as $row)
+    {
+        $ma = array('id'=>$row['Id'],'downloadurl'=>$row['downloadUrl'],'version'=>$row['version'],'softname'=>$row['exename'],'time'=>$row['time']);
+        array_push($arr,$ma);
+    }
+    echo json_encode($arr);
+
+
+	$dbh = null; //(free)
+}
 
 
 if($_GET['action']=='log')
@@ -69,5 +90,8 @@ if($_GET['action']=='log')
 }elseif($_GET['action']=='upLoad')
 {
    uploadUpdate($_GET['name'],$_GET['version'],$_GET['url']);
+}elseif($_GET['action']=='edit')
+{
+	getEditlist();
 }
 ?>	
