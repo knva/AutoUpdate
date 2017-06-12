@@ -49,6 +49,99 @@ if(!isset($_SESSION['username'])){
       <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+   <style>
+
+body{padding:10px}
+/* 上传控件 */
+.upload
+{
+    margin-top:10px;
+    width:300px;
+    height:30px;
+}
+.upload .uploadbtnBox
+{
+    float:left;
+    height:30px;
+    width:70px;
+    margin-right:8px;
+}
+.upload .progress
+{
+    height:4px;
+    line-height:4px;
+    *zoom:1;
+    background:#fff;
+    float:left;
+    width:200px;
+    border:1px #ccc solid;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+
+    display:none;
+}
+.upload .filestate
+{
+    float:left;
+    height:20px;
+    text-align:left;
+    width:150px;
+    line-height:20px;
+    display:none;
+    color:#333;
+    overflow:hidden;
+}
+.upload .progresspercent
+{
+    float:right;
+    padding-top:5px;
+    height:15px;
+    text-align:right;
+    font-size:9px;
+    line-height:15px;
+    color:#333;
+}
+
+.upload .uploadbtnBox .a-upload {
+    height:28px;
+    background:#4090c0;
+    border:1px solid #dddddd;color:#ffffff;
+    line-height:28px;
+    padding:0 6px;
+    font-size:0.9em;
+    overflow: hidden;
+    display: inline-block;
+    text-decoration:none;
+    *display: inline;
+    *zoom: 1
+}
+
+.upload .uploadbtnBox .a-upload  input {
+    position: absolute;
+    width:70px;
+    height:30px;
+    overflow:hidden;
+    margin-left:-10px;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    cursor: pointer
+
+}
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+    clear: both;
+}
+.clearfix {
+    _zoom: 1;
+}
+.clearfix {
+*zoom:1;
+}
+    </style>
+
 </head>
 
 <body>
@@ -67,7 +160,8 @@ if(!isset($_SESSION['username'])){
                             <tr>
                                 <th>id</th>
                                 <th>下载路径</th>
-                                <th>编辑</th>
+                                <th style='width:10%'>编辑</th>
+                                <th style='width:10%'>删除</th>
                             </tr>
                         </thead>
                         <tbody id='motal-edit'>
@@ -135,9 +229,9 @@ if(!isset($_SESSION['username'])){
                         <thead>
                             <tr>
                                 <th>id</th>
-                                <th>下载路径</th>
+                                <th style='width:40%'>下载路径</th>
                                 <th>更新时间</th>
-                                <th>版本</th>
+                                <th style='width:55px'>版本</th>
                                 <th>主程序名称</th>
                             </tr>
                         </thead>
@@ -187,12 +281,14 @@ if(!isset($_SESSION['username'])){
     <script src="../assets/js/vendor/holder.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+<script src="js/vendor/jquery.ui.widget.js"></script>
+<script src="js/jquery.iframe-transport.js"></script>
+
+<script src="js/jquery.fileupload.js"></script> 
+  <script>
+function initready()
+{
     
-   
-    <script>
-
-        $(document).ready(function() {
-
             $.get(
                 "common/action.php",
                 "action=Soft",
@@ -202,7 +298,7 @@ if(!isset($_SESSION['username'])){
   var button = "<td><input id ='editbtn' type='button' value='编辑' class='btn  btn-success' /></td>\
   <td><input id ='delbtn' type='button' value='删除' class='btn  btn-danger' onclick=\"del()\"/></td>";
   for(var i = 0 ; i <msg.length; i ++){
-   mhtml+= "<tr><td>"+msg[i].id+"</td><td>"+msg[i].downloadurl+"</td><td>"+msg[i].time+"</td><td>"+msg[i].version+"</td><td>"+msg[i].exename+"</td>"+button+"</tr>";
+   mhtml+= "<tr><td>"+msg[i].id+"</td><td style='width:40%'>"+msg[i].downloadurl+"</td><td>"+msg[i].time+"</td><td>"+msg[i].version+"</td><td>"+msg[i].exename+"</td>"+button+"</tr>";
  }
                 $("#tb1").html(mhtml);
                 },"json"
@@ -218,6 +314,9 @@ if(!isset($_SESSION['username'])){
     $("#tb2").html(mhtml);
                 },"json"
             );
+}
+        $(document).ready(function() {
+initready();
         });
 
     function log()
@@ -261,15 +360,16 @@ function softlog()
     
 
      $(document).on("click", "input:button#editbtn", function () {
+
+    var mparent = $(this).parent().siblings("td");
+
       // alert("test_0");
         str = $(this).val()=="编辑"?"确定":"编辑";  
 
         $(this).val(str);   // 按钮被点击后，在“编辑”和“确定”之间切换
 
- 
-
     var mlength =  $(this).parent().siblings("td").length;
-    var mparent = $(this).parent().siblings("td");
+
     //console.log(mparent);
     for(var i = 0 ; i <mlength;i++)
     {
@@ -306,6 +406,23 @@ function softlog()
         }
 
     }
+
+    
+    if($(this).val()=='编辑')
+    {
+        var name = $(mparent[4]).html();
+        var version = parseInt($(mparent[3]).html())+1;
+        var url = $(mparent[1]).html();
+                    $.get(
+                "common/action.php",
+                "action=upload&name="+name+"&version="+version+"&url="+url,
+                function(msg) {
+});
+                initready();
+            return;
+    }
+
+
     });
 
 
@@ -315,17 +432,25 @@ function() {
     var mlength = $(this).parent().siblings("td").length;
     var mparent = $(this).parent().siblings("td");
     var id = $(mparent[0]).html();
-    var editbtn = "<input type='button' id='upbtn' value='上传' />";
-    var delbtn = "<input type='button' id='delupbtn' value='删除'/>";
+  //  var editbtn = "<input id=\"fileupload\" class='fileupload' type=\"file\" name=\"files[]\" data-url=\"server/php/\" >\
+  //  <label id='uploadfiles'/>";
+  
     $.get("common/action.php?action=edit&id="+id,
     function(msg) {
         var mhtml;
         var arr=new Array();
         arr = msg[0].downloadurl.split(',');
 //console.log(arr);
-        for (var i = 0; i < arr.length; i++) {
-
-            mhtml += "<tr><td>" +parseInt(i+1) + "</td><td>" + arr[i] + "</td><td>"+editbtn+"</td>"+ "</td><td>"+delbtn+"</td></tr>";
+        for (var i = 1; i < arr.length+1; i++) {
+        var editbtn = "  <div class=\"upload clearfix \"><div class=\"uploadbtnBox clearfix\"><a herf='javascript:;' class='a-upload'><input id='"+parseInt(i-1)+"' class='fileupload' name=\"files[]\" type=\"file\" onclick='checkFile(this);'/>点击上传</a></div></div>";
+        var delbtn = "<button onclick='delteFile(this)' id ='delBtn"+parseInt(i-1)+"' class=\"btn btn-danger delete\" data-type=\"DELETE\" data-url=\"http://localhost/test/jfu/server/php/index.php?file="+arr[i-1].split('/')[arr[i-1].split('/').length-1]+"\">\
+                    <i class=\"glyphicon glyphicon-trash\"></i>\
+                    <span>Delete</span>\
+                </button>";
+        mhtml+="<tr>";
+          //  mhtml += "<tr><td>" +parseInt(i) + "</td><td>" + arr[i] + "</td><td>"+editbtn+"</td>"+ "</td><td>"+delbtn+"</td></tr>";
+        mhtml += "<td>" +parseInt(i) + "</td><td id='data"+parseInt(i-1)+"' >" + arr[i-1] + "</td><td>"+editbtn+"</td><td>"+delbtn+"</td>";
+        mhtml+="</tr>"
         }
         $("#motal-edit").html(mhtml);
         $("#myEditnum").html(id);
@@ -359,7 +484,45 @@ function() {
     }
 });
 
-
+function checkFile(tt){
+    var id = $(tt).attr('id');
+    $('input[type=file]').fileupload({
+        url: 'server/php/index.php',
+        dataType: 'json',
+        done: function (e, data) {
+            $.each(data.result.files, function (index, file) {
+                $('#data'+id).replaceWith($('<td/>').text(file.url));
+                $('#delBtn'+id).attr('data-url',file.deleteUrl);
+            });
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .progress-bar').css(
+                'width',
+                progress + '%'
+            );
+        }
+    });
+}
+function delteFile(tt)
+{
+//console.log($(tt).attr('data-url'));
+var tmp = $(tt).attr('data-url').split('=');
+var name = tmp[tmp.length-1];
+$.ajax({
+    url: $(tt).attr('data-url'),
+    type: 'delete',
+    dataType:'json',
+    success: function(result) {
+        // Do something with the result
+      //  console.log(result[name]);
+        if(result[name]){
+            $(tt).parents('tr').remove();
+        }
+    },
+   
+});
+}
 
     </script>
 

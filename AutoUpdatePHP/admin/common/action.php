@@ -37,6 +37,7 @@ array_push($logarr,$arr);
 	
 }
 function uploadUpdate($name,$version,$url) {
+
 	require ("../../db_config.php");
 	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
 	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -87,7 +88,7 @@ if($_GET['action']=='log')
 }elseif($_GET['action']=='Soft')
 {
     getSoftUpdate();
-}elseif($_GET['action']=='upLoad')
+}elseif($_GET['action']=='upload')
 {
    uploadUpdate($_GET['name'],$_GET['version'],$_GET['url']);
 }elseif($_GET['action']=='edit')
