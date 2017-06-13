@@ -12,7 +12,7 @@ function flushmJson($name, $ver, $dbh) {
 		return False;
 	}
 	$exename = $name;
-	$sqlstr = "SELECT downloadUrl ,version FROM `serverupdate` WHERE version > " . $ver . "  AND `exename` = '" . $exename . "'";
+	$sqlstr = "SELECT downloadUrl ,version ,path FROM `serverupdate` WHERE version > " . $ver . "  AND `exename` = '" . $exename . "'";
 	//  $dbh   = new PDO("mysql:host=localhost;dbname=update","root","root");
 	$rs = $dbh->query($sqlstr);
 	if ($rs->rowCount()) {
@@ -22,7 +22,12 @@ function flushmJson($name, $ver, $dbh) {
 			foreach ($allurl as $url) {
 				array_push($allfilename, basename($url));
 			}
-			$result = array("status" => "ok", 'ver' => intval($row[1]), "url" => $allurl, "file" => $allfilename);
+			$allpath = explode(',', $row[2]);
+			$allfilepath = array();
+			foreach ($allpath as $path) {
+				array_push($allfilepath, basename($path));
+			}
+			$result = array("status" => "ok", 'ver' => intval($row[1]), "url" => $allurl, "file" => $allfilename,"path"=> $allpath);
 			//$str = array('result'=>'ok','url'=>$row[0],'ver'=>intval($row[1]));
 			$json = json_encode($result);
 			echo $json;
@@ -122,9 +127,13 @@ if ((isset($_GET["name"]) && isset($_GET["version"]) && isset($_GET["publicKey"]
 		$dbh = null; //(free)
 		
 	} else {
-		echo 'Are you kidding me?';
+			$str = array('result' => 'failed');
+		$json = json_encode($str);
+		echo $json;
 	}
 } else {
-	echo 'You need some salt!';
+		$str = array('result' => 'failed');
+		$json = json_encode($str);
+		echo $json;
 }
 ?>

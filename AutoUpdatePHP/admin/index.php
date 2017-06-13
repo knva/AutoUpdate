@@ -63,7 +63,7 @@ if(!isset($_SESSION['username'])){
   <div class="modal-dialog modal-lg" role="document"> 
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close mtclosebtn" data-dismiss="modal"  aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel">编辑文件</h4>
         <h4 class="modal-title" id="myEditnum"></h4>
         <input type='button' onclick='addOne()' value='添加一个'/>
@@ -75,6 +75,7 @@ if(!isset($_SESSION['username'])){
                             <tr>
                                 <th>id</th>
                                 <th>下载路径</th>
+                                <th>子目录</th>
                                 <th style='width:10%'>编辑</th>
                                 <th style='width:10%'>删除</th>
                             </tr>
@@ -85,12 +86,31 @@ if(!isset($_SESSION['username'])){
                         </table>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-default mtclosebtn"  >关闭</button>
         <button type="button" class="btn btn-primary"  data-dismiss="modal" id='save'>保存</button>
       </div>
     </div>
   </div>
 </div>
+
+<div class="modal fade" tabindex="-1" id="mydelModal" role="dialog" style='top:0'>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span>消息</h4>
+      </div>
+      <div class="modal-body">
+      <p> 请注意,删除后无法恢复!</p>
+        <p>确认删除?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger">确认</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
     
@@ -201,6 +221,18 @@ if(!isset($_SESSION['username'])){
 
 <script src="js/jquery.fileupload.js"></script> 
 <script src="js/index.js"></script> 
+<script>
 
+function addFileDoc(tt)
+{
+
+    var name;  
+    do{  
+    name = prompt("输入子目录");//带输入窗的对话框  
+    var correct = confirm("输入子目录为："+name);//确认对话框  
+    }while(!correct);//警告框  
+ 
+}
+</script>
 
 </html>

@@ -41,13 +41,15 @@ class UploadHandler
     protected $image_objects = array();
 
     public function __construct($options = null, $initialize = true, $error_messages = null) {
+
+
         $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
             'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             'upload_url' => $this->get_full_url().'/files/',
             'input_stream' => 'php://input',
-            'user_dirs' => false,
+            'user_dirs' => true,
             'mkdir_mode' => 0755,
             'param_name' => 'files',
             // Set the following option to 'POST', if your server does not support
@@ -169,6 +171,8 @@ class UploadHandler
         if ($initialize) {
             $this->initialize();
         }
+// if(isset($_GET['softName'])&&isset($_GET['version']))
+//         if (!file_exists( $this->options['upload_dir'])){ mkdir ($this->options['upload_dir']);}; 
     }
 
     protected function initialize() {
@@ -213,7 +217,18 @@ class UploadHandler
 
     protected function get_user_path() {
         if ($this->options['user_dirs']) {
-            return $this->get_user_id().'/';
+
+              $softName = 'tmp';
+            $verPath = '0';
+if(isset($_GET['softName'])&&isset($_GET['version'])){
+            $softName = $_GET['softName'];
+            $verPath = $_GET['version'];
+            }
+            elseif(isset($_REQUEST['softName'])&&isset($_REQUEST['version'])) {
+                   $softName = $_REQUEST['softName'];
+            $verPath = $_REQUEST['version'];
+            }
+            return $softName.'/'.$verPath.'/';
         }
         return '';
     }
@@ -1370,6 +1385,7 @@ class UploadHandler
         $response = array();
         foreach ($file_names as $file_name) {
             $file_path = $this->get_upload_path($file_name);
+           // echo $file_path;
             $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
             if ($success) {
                 foreach ($this->options['image_versions'] as $version => $options) {
