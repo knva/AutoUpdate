@@ -7,7 +7,7 @@ function initready() {
             var button = "<td><input id ='editbtn' type='button' value='编辑' class='btn  btn-success' /></td>\
   <td><input id ='delbtn' type='button'  data-toggle='modal' data-target='#mydelModal' value='删除' class='btn  btn-danger' /></td>";
             for (var i = 0; i < msg.length; i++) {
-                mhtml += "<tr><td>" + msg[i].id + "</td><td style='width:40%'>" + msg[i].downloadurl + "</td><td>" + msg[i].time + "</td><td>" + msg[i].version + "</td><td>" + msg[i].exename + "</td>" + button + "</tr>";
+                mhtml += "<tr><td>" + msg[i].id + "</td><td style='width:40%' path='" + msg[i].path + "'>" + msg[i].downloadurl + "</td><td>" + msg[i].time + "</td><td>" + msg[i].version + "</td><td>" + msg[i].exename + "</td>" + button + "</tr>";
             }
             $("#tb1").html(mhtml);
         },
@@ -94,7 +94,7 @@ $(document).on("click", "input:button#editbtn",
                 case 3:
                     obj_text = $(mparent[i]).find("input:text"); // 判断单元格下是否有文本框
                     if (!obj_text.length) // 如果没有文本框，则添加文本框使之可以编辑
-                        $(mparent[i]).html("<input type='text'  disabled='disabled' style='width:30px' value='" + $(mparent[i]).text() + "'>");
+                        $(mparent[i]).html("<input type='text' id='ver" + $(mparent[0]).html() + "'  disabled='disabled' style='width:30px' value='" + $(mparent[i]).text() + "'>");
                     else // 如果已经存在文本框，则将其显示为文本框修改的值
                         $(mparent[i]).html(obj_text.val());
                     break;
@@ -102,7 +102,7 @@ $(document).on("click", "input:button#editbtn",
                     // console.log(mparent[i]);
                     obj_text = $(mparent[i]).find("input:text"); // 判断单元格下是否有文本框
                     if (!obj_text.length) // 如果没有文本框，则添加文本框使之可以编辑
-                        $(mparent[i]).html("<input type='text' value='" + $(mparent[i]).text() + "'>");
+                        $(mparent[i]).html("<input type='text'  id='exe" + $(mparent[0]).html() + "' value='" + $(mparent[i]).text() + "'>");
                     else // 如果已经存在文本框，则将其显示为文本框修改的值
                         $(mparent[i]).html(obj_text.val());
                     break;
@@ -112,9 +112,11 @@ $(document).on("click", "input:button#editbtn",
 
         if ($(this).val() == '编辑') {
             var name = $(mparent[4]).html();
+
             var version = parseInt($(mparent[3]).html()) + 1;
             var url = $(mparent[1]).html();
-            $.get("common/action.php", "action=upload&name=" + name + "&version=" + version + "&url=" + url,
+            var path = $(mparent[1]).attr('path');
+            $.get("common/action.php", "action=upload&name=" + name + "&path=" + path + "&version=" + version + "&url=" + url,
                 function(msg) {});
             initready();
             return;
@@ -131,10 +133,14 @@ $(document).on("click", "input:button#delbtn",
 
 $(document).on("click", "input:button#uploadbtn",
     function() {
+
         $('#myModal').modal({ backdrop: 'static', keyboard: false });
         var mlength = $(this).parent().siblings("td").length;
         var mparent = $(this).parent().siblings("td");
         var id = $(mparent[0]).html();
+        var version = $('#ver' + id).val();
+        var exename = $('#exe' + id).val();
+        // console.log(version);
         //  var editbtn = "<input id=\"fileupload\" class='fileupload' type=\"file\" name=\"files[]\" data-url=\"server/php/\" >\
         //  <label id='uploadfiles'/>";
         $.get("common/action.php?action=edit&id=" + id,
@@ -142,6 +148,9 @@ $(document).on("click", "input:button#uploadbtn",
                 var mhtml;
                 var arr = new Array();
                 arr = msg[0].downloadurl.split(',');
+
+                var patharr = new Array();
+                patharr = msg[0].path.split(',');
                 //console.log(arr);
                 for (var i = 1; i < arr.length + 1; i++) {
                     // var editbtn = "  <div class=\"upload clearfix \"><div class=\"uploadbtnBox clearfix\"><a herf='javascript:;' class='a-upload'><input id='" + parseInt(i - 1) + "' class='fileupload' name=\"files[]\" type=\"file\" onclick='checkFile(this);'/>点击上传</a></div></div>";
@@ -155,9 +164,9 @@ $(document).on("click", "input:button#uploadbtn",
                     <i class=\"glyphicon glyphicon-trash\"></i>\
                     <span>删除</span>\
                 </button>";
-                    var path = "<select>\
-  <option value =\"/\">/</option>\
-  <option value =\"/dll\">/dll</option>\
+                    var path = "<select onchange='replacePath(this)' class='mypath' id='paths" + parseInt(i - 1) + "'> \
+  <option  value =\"/\">/</option>\
+  <option   value =\"/dll\">/dll</option>\
 </select>";
                     mhtml += "<tr>";
                     //  mhtml += "<tr><td>" +parseInt(i) + "</td><td>" + arr[i] + "</td><td>"+editbtn+"</td>"+ "</td><td>"+delbtn+"</td></tr>";
@@ -168,12 +177,25 @@ $(document).on("click", "input:button#uploadbtn",
                         name = '未上传';
                     }
                     // console.log(tmp);
-                    mhtml += "<td id='data" + parseInt(i - 1) + "' value='" + arr[i - 1] + "'>" + name + "</td>";
+                    mhtml += "<td  id='data" + parseInt(i - 1) + "' value='" + arr[i - 1] + "' path='" + patharr[i - 1] + "'>" + name + "</td>";
+
                     mhtml += "<td>" + path + "</td><td>" + edibtn + "</td><td>" + delbtn + "</td>";
                     mhtml += "</tr>"
+                        // console.log($("#paths" + parseInt(i - 1) + " option[value='" + patharr[i - 1] + "']"));
+
+                    //根据值让option选中
+
                 }
+
                 $("#motal-edit").html(mhtml);
-                $("#myEditnum").html(id);
+                $("#myModalLabel").html("编辑文件:" + exename);
+                $("#myEditnum").html("编号:" + id);
+                $("#myEditVer").html("下一个版本:" + parseInt(parseInt(version) + 1));
+
+                for (var i = 0; i < arr.length; i++) {
+                    $("#paths" + parseInt(i)).val(patharr[i]);
+                }
+
             },
             "json");
     });
@@ -182,32 +204,42 @@ $(document).on("click", "button#save",
 
     function() {
         var arr = new Array();
+        var patharr = new Array();
         $("#motal-edit tr td:nth-child(2)").each(function(key, value) {
-            arr.push($(this).attr('value'));
+            if ($(this).attr('value') != '')
+                arr.push($(this).attr('value'));
+            if ($(this).attr('path') != '')
+                patharr.push($(this).attr('path'));
         });
         console.log(arr);
-
-        var myid = $("#myEditnum").html();
+        console.log(patharr);
+        var myid = String($("#myEditnum").html()).split(':')[1];
         //console.log($("#tb1 tr td:nth-child(2)")[myid - 1]);
         var obj_text = $($("#tb1 tr td:nth-child(2)")[myid - 1]).find("input:button");
+
         if (!obj_text.length) {
 
         } else {
             var btn = "<input id='uploadbtn' data-toggle='modal' data-target='#myModal' type='button' class='btn btn-success' value='修改' />"
             $($("#tb1 tr td:nth-child(2)")[myid - 1]).html(arr + btn);
+
+            $($("#tb1 tr td:nth-child(2)")[myid - 1]).attr('path', patharr);
         }
     });
 
 function checkFile(tt) {
     var id = $(tt).attr('id');
-    console.log(id);
+    var exename = String($("#myModalLabel").html()).split(':')[1];
+
+    var version = String($("#myEditVer").html()).split(':')[1];
+
     $('input[type=file]').fileupload({
-        url: 'server/php/index.php?softName=update&version=143',
+        url: 'server/php/index.php?softName=' + exename + '&version=' + version,
         dataType: 'json',
         done: function(e, data) {
             $.each(data.result.files,
                 function(index, file) {
-                    $('#data' + id).replaceWith($('<td/>').text(file.name).attr('value', file.url));
+                    $('#data' + id).replaceWith($('<td/>').text(file.name).attr({ 'value': file.url, 'path': $("#paths" + id).val() }));
                     $('#delBtn' + id).attr('data-url', file.deleteUrl);
 
                 });
@@ -226,13 +258,16 @@ function delteFile(tt) {
     var argtmp = nametmp.split('&');
     var pathtmp = argtmp[0].split('/');
     var name = pathtmp[pathtmp.length - 1];
+    var exename = String($("#myModalLabel").html()).split(':')[1];
+
+    var version = String($("#myEditVer").html()).split(':')[1];
     //console.log(name);
     if (name == 'null' || name == '未上传' || name == '') {
         $(tt).parents('tr').remove();
         return;
     }
     $.ajax({
-        url: $(tt).attr('data-url') + "&softName=update&version=143",
+        url: $(tt).attr('data-url') + "&softName=" + exename + "&version=" + version,
         type: 'delete',
         dataType: 'json',
         success: function(result) {
@@ -263,7 +298,7 @@ function addOne(tt) {
                     <span>删除</span>\
                 </button>";
 
-    var path = "<select>\
+    var path = "<select class='mypath'>\
   <option value =\"/\">/</option>\
   <option value =\"/dll\">/dll</option>\
 </select>";
@@ -280,3 +315,11 @@ $(document).on('click', '.mtclosebtn',
             $('#myModal').modal('hide')
         }
     });
+
+function replacePath(tt) {
+    console.log($(tt).parent().prev().attr("path", $(tt).val()));
+}
+
+function foo() {
+    alert('aaa');
+}

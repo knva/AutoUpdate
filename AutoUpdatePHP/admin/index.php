@@ -50,11 +50,6 @@ if(!isset($_SESSION['username'])){
       <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-   <style>
-
-
-    </style>
-
 </head>
 
 <body>
@@ -66,6 +61,7 @@ if(!isset($_SESSION['username'])){
         <button type="button" class="close mtclosebtn" data-dismiss="modal"  aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalLabel">编辑文件</h4>
         <h4 class="modal-title" id="myEditnum"></h4>
+        <h4 class="modal-title" id="myEditVer"></h4>
         <input type='button' onclick='addOne()' value='添加一个'/>
         <input type='button' onclick='addFileDoc()' value='新建文件夹'/>
       </div>
@@ -230,7 +226,8 @@ function addFileDoc(tt)
     do{  
     name = prompt("输入子目录");//带输入窗的对话框  
     var correct = confirm("输入子目录为："+name);//确认对话框  
-    }while(!correct);//警告框  
+}while(!correct);//警告框  
+    $("<option/>").attr('value',name).html(name).appendTo($(".mypath"));
  
 }
 </script>

@@ -10,7 +10,7 @@ function getSoftUpdate() {
 
 	foreach ($res as $row) {
 	//$row['id'];
-	$arr =Array('id'=>$row['Id'],'downloadurl'=>$row['downloadUrl'],'time'=>$row['time'],'version'=>$row['version'],'exename'=>$row['exename']);
+	$arr =Array('id'=>$row['Id'],'downloadurl'=>$row['downloadUrl'],'path'=>$row['path'],'time'=>$row['time'],'version'=>$row['version'],'exename'=>$row['exename']);
 
 	array_push($softarr,$arr);
 	}
@@ -36,13 +36,13 @@ array_push($logarr,$arr);
 	$dbh = null; //(free)
 	
 }
-function uploadUpdate($name,$version,$url) {
+function uploadUpdate($name,$path,$version,$url) {
 
 	require ("../../db_config.php");
 	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
 	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sqlstr = "update serverupdate set `downloadUrl`='".$url."' ,`time`='".date("Y-m-d H:i:s", time())."',`version`='".$version."' 
+	$sqlstr = "update serverupdate set `downloadUrl`='".$url."',`path`='".$path."' ,`time`='".date("Y-m-d H:i:s", time())."',`version`='".$version."' 
 		where id = 
 		(
 		select a.id from (
@@ -72,7 +72,7 @@ require ("../../db_config.php");
     $arr =array();
     foreach($res as $row)
     {
-        $ma = array('id'=>$row['Id'],'downloadurl'=>$row['downloadUrl'],'version'=>$row['version'],'softname'=>$row['exename'],'time'=>$row['time']);
+        $ma = array('id'=>$row['Id'],'downloadurl'=>$row['downloadUrl'],'path'=>$row['path'],'version'=>$row['version'],'softname'=>$row['exename'],'time'=>$row['time']);
         array_push($arr,$ma);
     }
     echo json_encode($arr);
@@ -90,7 +90,7 @@ if($_GET['action']=='log')
     getSoftUpdate();
 }elseif($_GET['action']=='upload')
 {
-   uploadUpdate($_GET['name'],$_GET['version'],$_GET['url']);
+   uploadUpdate($_GET['name'],$_GET['path'],$_GET['version'],$_GET['url']);
 }elseif($_GET['action']=='edit')
 {
 	getEditlist();
