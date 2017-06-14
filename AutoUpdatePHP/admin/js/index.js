@@ -1,29 +1,32 @@
-function initready() {
-
-    $.get("common/action.php", "action=Soft",
-        function(msg) {
-            //console.log(msg.length);
-            var mhtml;
-            var button = "<td><input id ='editbtn' type='button' value='编辑' class='btn  btn-success' /></td>\
+function initready(fc) {
+    if (fc == 1 || fc == 3) {
+        $.get("common/action.php", "action=Soft",
+            function(msg) {
+                //console.log(msg.length);
+                var mhtml;
+                var button = "<td><input id ='editbtn' type='button' value='编辑' class='btn  btn-success' /></td>\
   <td><input id ='delbtn' type='button'  data-toggle='modal' data-target='#mydelModal' value='删除' class='btn  btn-danger' /></td>";
-            for (var i = 0; i < msg.length; i++) {
-                mhtml += "<tr><td>" + msg[i].id + "</td><td style='width:40%' path='" + msg[i].path + "'>" + msg[i].downloadurl + "</td><td>" + msg[i].time + "</td><td>" + msg[i].version + "</td><td>" + msg[i].exename + "</td>" + button + "</tr>";
-            }
-            $("#tb1").html(mhtml);
-        },
-        "json");
-    $.get("common/action.php", "action=log",
-        function(msg) {
-            var mhtml;
-            for (var i = 0; i < msg.length; i++) {
-                mhtml += "<tr><td>" + msg[i].id + "</td><td>" + msg[i].time + "</td><td>" + msg[i].json + "</td><td>" + msg[i].version + "</td><td>" + msg[i].ip + "</td></tr>";
-            }
-            $("#tb2").html(mhtml);
-        },
-        "json");
+                for (var i = 0; i < msg.length; i++) {
+                    mhtml += "<tr><td>" + msg[i].id + "</td><td style='width:40%' path='" + msg[i].path + "'>" + msg[i].downloadurl + "</td><td>" + msg[i].time + "</td><td>" + msg[i].version + "</td><td>" + msg[i].exename + "</td>" + button + "</tr>";
+                }
+                $("#tb1").html(mhtml);
+            },
+            "json");
+    }
+    if (fc == 2 || fc == 3) {
+        $.get("common/action.php", "action=log",
+            function(msg) {
+                var mhtml;
+                for (var i = 0; i < msg.length; i++) {
+                    mhtml += "<tr><td>" + msg[i].id + "</td><td>" + msg[i].time + "</td><td>" + msg[i].json + "</td><td>" + msg[i].version + "</td><td>" + msg[i].ip + "</td></tr>";
+                }
+                $("#tb2").html(mhtml);
+            },
+            "json");
+    }
 }
 $(document).ready(function() {
-    initready();
+    initready(3);
 });
 
 function log() {
@@ -102,7 +105,7 @@ $(document).on("click", "input:button#editbtn",
                     // console.log(mparent[i]);
                     obj_text = $(mparent[i]).find("input:text"); // 判断单元格下是否有文本框
                     if (!obj_text.length) // 如果没有文本框，则添加文本框使之可以编辑
-                        $(mparent[i]).html("<input type='text'  id='exe" + $(mparent[0]).html() + "' value='" + $(mparent[i]).text() + "'>");
+                        $(mparent[i]).html("<input type='text'  disabled='disabled' id='exe" + $(mparent[0]).html() + "' value='" + $(mparent[i]).text() + "'>");
                     else // 如果已经存在文本框，则将其显示为文本框修改的值
                         $(mparent[i]).html(obj_text.val());
                     break;
@@ -118,7 +121,7 @@ $(document).on("click", "input:button#editbtn",
             var path = $(mparent[1]).attr('path');
             $.get("common/action.php", "action=upload&name=" + name + "&path=" + path + "&version=" + version + "&url=" + url,
                 function(msg) {});
-            initready();
+
             return;
         }
 
@@ -126,14 +129,33 @@ $(document).on("click", "input:button#editbtn",
 
 $(document).on("click", "input:button#delbtn",
     function() {
+        var mparent = $(this).parent().siblings("td");
+        var id = $(mparent[0]).html();
+        $('#mydelnum').text(id);
+        var exename = $(mparent[4]).html();
+        $('#mydelexename').text(exename);
 
+        $(document).on("click", "#mydelObjectBtn",
+            function() {
+                $.get("common/action.php", "action=del&name=" + id,
+                    function(msg) {
 
+                        if (msg != 'error') {
+
+                        } else {
+                            alert('删除失败');
+                        }
+                    },
+                    "json");
+
+                $("#mydelModal").modal('hide');
+                initready(1);
+            });
 
     });
 
 $(document).on("click", "input:button#uploadbtn",
     function() {
-
         $('#myModal').modal({ backdrop: 'static', keyboard: false });
         var mlength = $(this).parent().siblings("td").length;
         var mparent = $(this).parent().siblings("td");
@@ -312,13 +334,40 @@ function addOne(tt) {
 $(document).on('click', '.mtclosebtn',
     function() {
         if (confirm('确定关闭?')) {
-            $('#myModal').modal('hide')
+            $('#myModal').modal('hide');
         }
     });
 
 function replacePath(tt) {
     console.log($(tt).parent().prev().attr("path", $(tt).val()));
 }
+
+
+
+function addFileDoc(tt) {
+
+    var name;
+    do {
+        name = prompt("输入子目录"); //带输入窗的对话框  
+        var correct = confirm("输入子目录为：" + name); //确认对话框  
+    } while (!correct); //警告框  
+    $("<option/>").attr('value', name).html(name).appendTo($(".mypath"));
+
+}
+$("#newObject").on('click', function() {
+    $.get("common/action.php", "action=new",
+        function(msg) {
+            if (msg != 'error') {
+
+            }
+            if (msg == 0) {
+                alert('请不要重复创建');
+            }
+        },
+        "json");
+    initready(1);
+
+});
 
 function foo() {
     alert('aaa');

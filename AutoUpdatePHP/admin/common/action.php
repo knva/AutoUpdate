@@ -1,11 +1,20 @@
 <?php
-function getSoftUpdate() {
 	require ("../../db_config.php");
-	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
-	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sqlstr = "select * from serverupdate";
-	$res = $dbh->query($sqlstr);
+	require ("../app/MMysql.php");
+	$configArr = Array('host'=>$db_host,'port'=>'3306','user'=>$db_username,'passwd'=>$db_password,'dbname'=>$db_database);
+	
+	$mysql= new MMysql($configArr);
+
+function getSoftUpdate() {
+
+	// $dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
+	// $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+	// $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		// $sqlstr = "select * from serverupdate ORDER BY id";
+	// $res = $dbh->query($sqlstr);
+global 	$mysql ;
+	$sqlstr = "select * from serverupdate ORDER BY id";
+	$res = $mysql->doSql($sqlstr);
 	$softarr = Array();
 
 	foreach ($res as $row) {
@@ -20,12 +29,18 @@ function getSoftUpdate() {
 	
 }
 function getUserUpdatelog() {
-	require ("../../db_config.php");
-	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
-	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$sqlstr = "select * from updatelog";
-	$res = $dbh->query($sqlstr);
+	// require ("../../db_config.php");
+	global 	$mysql ;
+	// $dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
+	// $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+	// $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	//$sqlstr = "select * from updatelog";
+$res = $mysql->field('Id,time,json,ver,ip')
+    ->order('Id desc')
+    ->limit(1,20)
+    ->select('updatelog');
+
+	//$res = $mysql->doSql($sqlstr);
 		$logarr = Array();
 	foreach ($res as $row) {
 //		echo "<tr>" . "<td>" . $row['Id'] . "</td>" . "<td>" . $row['time'] . "</td>" . "<td>" . $row['json'] . "</td>" . "<td>" . $row['ver'] . "</td>" . "<td>" . $row['ip'] . "</td>" . "</tr>";
@@ -38,10 +53,11 @@ array_push($logarr,$arr);
 }
 function uploadUpdate($name,$path,$version,$url) {
 
-	require ("../../db_config.php");
-	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
-	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	// require ("../../db_config.php");
+	global 	$mysql ;
+	// $dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
+	// $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+	// $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	$sqlstr = "update serverupdate set `downloadUrl`='".$url."',`path`='".$path."' ,`time`='".date("Y-m-d H:i:s", time())."',`version`='".$version."' 
 		where id = 
 		(
@@ -49,7 +65,7 @@ function uploadUpdate($name,$path,$version,$url) {
 		select id from serverupdate where `exename`='".$name."'
 		)a
 		)";
-    $res = $dbh->exec($sqlstr);
+    $res = $mysql->doSql($sqlstr);
 	if($res==0)
 	{
 		 exit('error');
@@ -62,13 +78,13 @@ function uploadUpdate($name,$path,$version,$url) {
 function getEditlist()
 {
 	$findid = $_GET['id'];
-
-require ("../../db_config.php");
-	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
-	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+global 	$mysql ;
+// require ("../../db_config.php");
+// 	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
+// 	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+// 	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	$sqlstr = 'select * from serverupdate where id='.$findid;
-    $res = $dbh->query($sqlstr);
+   $res = $mysql->doSql($sqlstr);
     $arr =array();
     foreach($res as $row)
     {
@@ -81,7 +97,42 @@ require ("../../db_config.php");
 	$dbh = null; //(free)
 }
 
+function newUpdateObject()
+{
+	global 	$mysql ;
+// require ("../../db_config.php");
+// 	$dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
+// 	$dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+// 	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$sqlstr = 'insert into serverupdate (downloadUrl,path,version,exename) 
+	(select \'/\',\'/\',0,\'未命名\' from serverupdate where not exists 
+	(select * from serverupdate where exename=\'未命名\') limit 1)';
+$res = $mysql->doSql($sqlstr);
+	if($res==0)
+	{
+		 exit('0');
+	}	
+	$dbh = null; //(free)
+}
 
+function deleteObject()
+{
+	global 	$mysql ;
+	$name = urldecode($_GET['name']);
+	// //echo $name;
+	// require ("../../db_config.php");
+	// $dbh = new PDO("mysql:host=" . $db_host . ";dbname=" . $db_database . ";charset=utf8", $db_username, $db_password, array(PDO::ATTR_PERSISTENT => true));
+	// $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+	// $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$sqlstr = "delete from serverupdate  where id =".$name;
+	//echo $sqlstr;
+	$res = $mysql->doSql($sqlstr);
+	if($res==0)
+	{
+		 exit('0');
+	}	
+	$dbh = null; //(free)
+}
 if($_GET['action']=='log')
 {
     getUserUpdatelog();
@@ -94,5 +145,12 @@ if($_GET['action']=='log')
 }elseif($_GET['action']=='edit')
 {
 	getEditlist();
+}elseif($_GET['action']=='new')
+{
+	newUpdateObject();
+}
+elseif($_GET['action']=='del')
+{
+	deleteObject();
 }
 ?>	

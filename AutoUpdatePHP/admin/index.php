@@ -98,11 +98,11 @@ if(!isset($_SESSION['username'])){
       </div>
       <div class="modal-body">
       <p> 请注意,删除后无法恢复!</p>
-        <p>确认删除?</p>
+        <p>确认删除?第<a id='mydelnum'></a>条,软件名称:<a id='mydelexename'/></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-danger">确认</button>
+        <button id='mydelObjectBtn' type="button" class="btn btn-danger">确认</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -154,7 +154,7 @@ if(!isset($_SESSION['username'])){
                 </ul>
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" id='something'>
-                <h2 class="sub-header">软件更新列表</h2>
+                <h2 class="sub-header">软件更新列表</h2><input type='button' id ='newObject' class='btn'/ value='新建'>
                 <div class="table-responsive">
                     <table class="table table-striped" id="up date">
                         <thead>
@@ -219,17 +219,7 @@ if(!isset($_SESSION['username'])){
 <script src="js/index.js"></script> 
 <script>
 
-function addFileDoc(tt)
-{
 
-    var name;  
-    do{  
-    name = prompt("输入子目录");//带输入窗的对话框  
-    var correct = confirm("输入子目录为："+name);//确认对话框  
-}while(!correct);//警告框  
-    $("<option/>").attr('value',name).html(name).appendTo($(".mypath"));
- 
-}
 </script>
 
 </html>
